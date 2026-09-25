@@ -52,7 +52,17 @@
   </div>
   <script src="config.js"></script>
   <script src="auth.js"></script>
+  <script src="content.js"></script>
   <script src="shell.js"></script>
   <script>SEUShell.init("retirement");</script>
+  <script>
+
+    (async function () {
+      var d = (await SEUContent.load()).retirement || {};
+      var box = document.querySelector(".callout");
+      if (box && d.text) box.textContent = d.text;
+    })();
+
+  </script>
 </body>
 </html>

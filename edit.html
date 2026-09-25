@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Guide · SEU</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .editor-page { max-width: 720px; }
+    .editor-page label { display: block; font-weight: 600; font-size: 0.8rem; color: var(--muted); margin: 16px 0 6px; }
+    .editor-page input, .editor-page textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: Inter, sans-serif; font-size: 0.92rem; background: #fff;
+    }
+    .editor-page textarea { min-height: 90px; resize: vertical; line-height: 1.45; }
+    .editor-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; position: sticky; bottom: 0; background: var(--bg); padding: 16px 0; }
+    .btn-primary { background: var(--navy); color: #fff; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-secondary { background: #fff; color: var(--navy); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .editor-status { margin-top: 12px; font-size: 0.9rem; }
+    .editor-status.ok { color: var(--green); }
+    .editor-status.err { color: var(--danger); }
+    .editor-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+    .editor-section h3 { color: var(--navy); margin-bottom: 4px; font-size: 1rem; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
+      </div>
+      <nav class="nav">
+        <a href="home.html" class="nav-link">← Back to guide</a>
+        <a href="edit.html" class="nav-link active">Edit guide</a>
+      </nav>
+      <div class="user-box" id="user-box"></div>
+      <button type="button" class="logout" id="logout">Sign out</button>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menu-toggle">☰</button>
+        <h2>Edit guide</h2>
+      </header>
+      <div class="content editor-page">
+        <p class="hint">Only users with an editor role can access this page. Changes save for everyone if a GitHub token is configured; otherwise they save in this browser only.</p>
+        <div id="denied" class="callout danger" hidden>You do not have permission to edit the guide.</div>
+        <form id="editor-form" hidden>
+          <div class="editor-section">
+            <h3>Home</h3>
+            <label>Title</label>
+            <input name="home.title" />
+            <label>Lead text</label>
+            <textarea name="home.lead"></textarea>
+            <label>Warning</label>
+            <textarea name="home.warning"></textarea>
+          </div>
+          <div class="editor-section">
+            <h3>Use of Force</h3>
+            <label>Intro</label>
+            <textarea name="uof.intro"></textarea>
+            <label>Rules (one per line)</label>
+            <textarea name="uof.rules" style="min-height:120px"></textarea>
+          </div>
+          <div class="editor-section">
+            <h3>Quota &amp; LOA</h3>
+            <label>Quota intro</label>
+            <textarea name="policies.quotaIntro"></textarea>
+            <label>Senior High Rank+ hours</label>
+            <input name="policies.seniorHigh" />
+            <label>High Rank hours</label>
+            <input name="policies.high" />
+            <label>Middle Rank hours</label>
+            <input name="policies.middle" />
+            <label>Low Rank hours</label>
+            <input name="policies.low" />
+            <label>Missed quota text</label>
+            <textarea name="policies.missed"></textarea>
+            <label>Promotion policy</label>
+            <textarea name="policies.promo"></textarea>
+            <label>LOA policy</label>
+            <textarea name="policies.loa"></textarea>
+          </div>
+          <div class="editor-section">
+            <h3>Retirement</h3>
+            <label>Policy text</label>
+            <textarea name="retirement.text"></textarea>
+          </div>
+          <div class="editor-section">
+            <h3>Equipment notes</h3>
+            <label>Weapon note</label>
+            <textarea name="equipment.weaponNote"></textarea>
+            <label>Uniforms (one per line)</label>
+            <textarea name="equipment.uniforms"></textarea>
+            <label>Loadout (one per line)</label>
+            <textarea name="equipment.loadout"></textarea>
+          </div>
+          <div class="editor-section">
+            <h3>Vehicles</h3>
+            <label>High Command note</label>
+            <textarea name="vehicles.highCommand"></textarea>
+            <label>MISC</label>
+            <textarea name="vehicles.misc"></textarea>
+            <label>Undercover</label>
+            <textarea name="vehicles.undercover"></textarea>
+          </div>
+          <div class="editor-actions">
+            <button type="submit" class="btn-primary">Save</button>
+            <button type="button" class="btn-secondary" id="btn-local">Save in this browser only</button>
+            <a class="btn-secondary" href="home.html" style="text-decoration:none;display:inline-flex;align-items:center">Cancel</a>
+          </div>
+          <p id="status" class="editor-status" hidden></p>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="content.js"></script>
+  <script src="shell.js"></script>
+  <script>
+    SEUShell.init("edit");
+    (async function () {
+      if (!SEUAuth.requireAuth()) return;
+      var form = document.getElementById("editor-form");
+      var denied = document.getElementById("denied");
+      if (!SEUAuth.canEdit()) {
+        denied.hidden = false;
+        return;
+      }
+      form.hidden = false;
+      var data = await SEUContent.load();
+
+      function set(name, val) {
+        var el = form.elements.namedItem(name);
+        if (el) el.value = val == null ? "" : val;
+      }
+      function getPath(obj, path) {
+        return path.split(".").reduce(function (o, k) { return o && o[k]; }, obj);
+      }
+      set("home.title", getPath(data, "home.title"));
+      set("home.lead", getPath(data, "home.lead"));
+      set("home.warning", getPath(data, "home.warning"));
+      set("uof.intro", getPath(data, "uof.intro"));
+      set("uof.rules", (getPath(data, "uof.rules") || []).join("\n"));
+      set("policies.quotaIntro", getPath(data, "policies.quotaIntro"));
+      set("policies.seniorHigh", getPath(data, "policies.seniorHigh"));
+      set("policies.high", getPath(data, "policies.high"));
+      set("policies.middle", getPath(data, "policies.middle"));
+      set("policies.low", getPath(data, "policies.low"));
+      set("policies.missed", getPath(data, "policies.missed"));
+      set("policies.promo", getPath(data, "policies.promo"));
+      set("policies.loa", getPath(data, "policies.loa"));
+      set("retirement.text", getPath(data, "retirement.text"));
+      set("equipment.weaponNote", getPath(data, "equipment.weaponNote"));
+      set("equipment.uniforms", (getPath(data, "equipment.uniforms") || []).join("\n"));
+      set("equipment.loadout", (getPath(data, "equipment.loadout") || []).join("\n"));
+      set("vehicles.highCommand", getPath(data, "vehicles.highCommand"));
+      set("vehicles.misc", getPath(data, "vehicles.misc"));
+      set("vehicles.undercover", getPath(data, "vehicles.undercover"));
+
+      function buildPayload() {
+        var lines = function (name) {
+          return (form.elements.namedItem(name).value || "").split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+        };
+        var v = function (name) { return (form.elements.namedItem(name).value || "").trim(); };
+        return {
+          home: { title: v("home.title"), lead: v("home.lead"), warning: v("home.warning") },
+          uof: { intro: v("uof.intro"), rules: lines("uof.rules") },
+          policies: {
+            quotaIntro: v("policies.quotaIntro"),
+            seniorHigh: v("policies.seniorHigh"),
+            high: v("policies.high"),
+            middle: v("policies.middle"),
+            low: v("policies.low"),
+            missed: v("policies.missed"),
+            promo: v("policies.promo"),
+            loa: v("policies.loa")
+          },
+          retirement: { text: v("retirement.text") },
+          equipment: {
+            weaponNote: v("equipment.weaponNote"),
+            uniforms: lines("equipment.uniforms"),
+            loadout: lines("equipment.loadout"),
+            defaultWeapons: (data.equipment && data.equipment.defaultWeapons) || [],
+            class2: (data.equipment && data.equipment.class2) || [],
+            class3: (data.equipment && data.equipment.class3) || []
+          },
+          vehicles: {
+            highCommand: v("vehicles.highCommand"),
+            misc: v("vehicles.misc"),
+            undercover: v("vehicles.undercover"),
+            low: (data.vehicles && data.vehicles.low) || [],
+            middle: (data.vehicles && data.vehicles.middle) || [],
+            high: (data.vehicles && data.vehicles.high) || []
+          },
+          ranks: data.ranks || {},
+          response: data.response || {},
+          command: data.command || []
+        };
+      }
+
+      function showStatus(msg, ok) {
+        var el = document.getElementById("status");
+        el.hidden = false;
+        el.textContent = msg;
+        el.className = "editor-status " + (ok ? "ok" : "err");
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        var payload = buildPayload();
+        SEUContent.saveLocal(payload);
+        var result = await SEUContent.saveGitHub(payload);
+        if (result.ok) showStatus("Saved and published for everyone.", true);
+        else {
+          showStatus("Saved in this browser. " + (result.error || ""), false);
+        }
+      });
+
+      document.getElementById("btn-local").addEventListener("click", function () {
+        SEUContent.saveLocal(buildPayload());
+        showStatus("Saved in this browser only.", true);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -68,7 +68,20 @@
   </div>
   <script src="config.js"></script>
   <script src="auth.js"></script>
+  <script src="content.js"></script>
   <script src="shell.js"></script>
   <script>SEUShell.init("home");</script>
+  <script>
+    (async function () {
+      var data = await SEUContent.load();
+      var h = data.home || {};
+      var t = document.querySelector(".hero h1");
+      var lead = document.querySelector(".hero .lead");
+      var warn = document.querySelector(".callout.danger");
+      if (t && h.title) t.textContent = h.title;
+      if (lead && h.lead) lead.textContent = h.lead;
+      if (warn && h.warning) warn.innerHTML = "<strong>Warning</strong> " + h.warning;
+    })();
+  </script>
 </body>
 </html>

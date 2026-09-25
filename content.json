@@ -1,0 +1,69 @@
+{
+  "home": {
+    "title": "Speed Enforcement Unit",
+    "lead": "Official unit guide for authorized SEU members. Follow all policies exactly as written.",
+    "warning": "Leaking this guide will result in an immediate blacklist."
+  },
+  "ranks": {
+    "command": ["Commander", "Deputy Commander", "Assistant Commander"],
+    "highCommand": ["Chief", "Assistant Chief"],
+    "highRank": ["Captain II", "Captain I", "Lieutenant"],
+    "supervisor": ["Senior Sergeant", "Sergeant", "Junior Sergeant"],
+    "lowRank": ["Corporal", "Officer First Class", "Officer"]
+  },
+  "equipment": {
+    "uniforms": [
+      "CHP | SEU Officer — Every SEU member",
+      "CHP | SEU Supervisor — SGT+",
+      "CHP | SEU Command — Board of Commanders"
+    ],
+    "defaultWeapons": ["Shield 9", "Glock 17"],
+    "class2": ["M4A1", "Ruger SR 556", "Type 89"],
+    "class3": ["SPAS 12", "Fabarm FP6", "Benelli M4"],
+    "loadout": ["Taser", "Handcuffs", "MDT", "Cones (trunk)", "Flares (trunk)", "Pepper Spray"],
+    "weaponNote": "All weapon regulations follow your rank. Failure results in an infraction."
+  },
+  "vehicles": {
+    "low": ["2015 Bullhorn Prancer Pursuit", "2011 Bullhorn Prancer Pursuit", "2020 Bullhorn Prancer Widebody (Main SEU)"],
+    "middle": ["2022 Bullhorn Determinator C/T", "2011 Chevlon Amigo LZR", "2024 Falcon eStallion"],
+    "high": ["2024 Celestial Truckatron", "2014 Chevlon Corbetta RZR", "Falcon Stallion 350 Interceptor"],
+    "highCommand": "Any vehicle. Bypasses certifications and regulations.",
+    "misc": "2022 Bullhorn Determinator SFP Fury — Must be EVOC certified and trained in CHP.",
+    "undercover": "AC+ may use undercover vehicles without police identifiers for covert approaches."
+  },
+  "uof": {
+    "intro": "Use of force is heavily enforced. De-escalate properly and calmly at all times.",
+    "rules": [
+      "Aiming your gun at an unarmed civilian or another officer at any time results in an infraction.",
+      "Firing when there is no threat results in an infraction.",
+      "Shooting or killing a civilian with no apparent threat results in termination from the division.",
+      "Mag-dumping a corpse results in an infraction."
+    ]
+  },
+  "policies": {
+    "quotaIntro": "Officers must hit weekly shift quota to remain active and eligible for promotion. Quotas are checked Friday evenings.",
+    "seniorHigh": "1 hour",
+    "high": "1 hour",
+    "middle": "2 hours",
+    "low": "2 hours",
+    "missed": "Each miss = 1 strike. Miss 3 times in a row without LOA = removal from the division. Always check announcements for current quota.",
+    "promo": "Eligible by hitting weekly quota, consistency, and performance. High Rank+ promotions consider additional factors beyond shift time.",
+    "loa": "Request Leave of Absence up to 3 weeks. Request extensions via ticket to HR. Notify HR before LOA ends if you still cannot play — or risk infraction."
+  },
+  "retirement": {
+    "text": "When retiring, you may reinstate within two months (1× demotion). If you reinstate after one month, re-training is required. Some certifications are not regained if you are not the required rank."
+  },
+  "response": {
+    "code1": "No lights or sirens",
+    "code2": "Lights, no sirens",
+    "code3": "Lights and sirens",
+    "code4": "Scene is clear",
+    "code5": "Felony stop"
+  },
+  "command": [
+    { "callsign": "SE-001", "username": "xnotzjess", "rank": "COMM" },
+    { "callsign": "SE-002", "username": "harry29hb214", "rank": "DCOMM" },
+    { "callsign": "SE-003", "username": "omerisulukboku", "rank": "ACOMM" },
+    { "callsign": "SE-004", "username": "ykaldjane2319", "rank": "ACOMM" }
+  ]
+}

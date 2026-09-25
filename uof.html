@@ -56,7 +56,21 @@
   </div>
   <script src="config.js"></script>
   <script src="auth.js"></script>
+  <script src="content.js"></script>
   <script src="shell.js"></script>
   <script>SEUShell.init("uof");</script>
+  <script>
+
+    (async function () {
+      var d = (await SEUContent.load()).uof || {};
+      var p = document.querySelector(".section > p");
+      var ol = document.querySelector(".rules");
+      if (p && d.intro) p.textContent = d.intro;
+      if (ol && d.rules) {
+        ol.innerHTML = d.rules.map(function (r) { return "<li>" + r + "</li>"; }).join("");
+      }
+    })();
+
+  </script>
 </body>
 </html>

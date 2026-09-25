@@ -61,7 +61,32 @@
   </div>
   <script src="config.js"></script>
   <script src="auth.js"></script>
+  <script src="content.js"></script>
   <script src="shell.js"></script>
   <script>SEUShell.init("policies");</script>
+  <script>
+
+    (async function () {
+      var d = (await SEUContent.load()).policies || {};
+      var firstP = document.querySelector(".section > p");
+      if (firstP && d.quotaIntro) firstP.textContent = d.quotaIntro;
+      var cards = document.querySelectorAll(".card-grid .card p");
+      if (cards[0] && d.seniorHigh) cards[0].textContent = d.seniorHigh;
+      if (cards[1] && d.high) cards[1].textContent = d.high;
+      if (cards[2] && d.middle) cards[2].textContent = d.middle;
+      if (cards[3] && d.low) cards[3].textContent = d.low;
+      var danger = document.querySelector(".callout.danger");
+      if (danger && d.missed) danger.innerHTML = "<strong>Missed quota</strong> " + d.missed;
+      document.querySelectorAll(".section h2").forEach(function (h) {
+        if (h.textContent.indexOf("Promotional") >= 0 && h.nextElementSibling && d.promo) {
+          h.nextElementSibling.textContent = d.promo;
+        }
+        if (h.textContent.indexOf("LOA") >= 0 && h.nextElementSibling && d.loa) {
+          h.nextElementSibling.textContent = d.loa;
+        }
+      });
+    })();
+
+  </script>
 </body>
 </html>

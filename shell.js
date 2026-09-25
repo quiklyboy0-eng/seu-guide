@@ -3,7 +3,8 @@ window.SEUShell = {
     if (!window.SEUAuth || !SEUAuth.requireAuth()) return;
 
     document.querySelectorAll(".nav-link").forEach(function (a) {
-      a.classList.toggle("active", a.getAttribute("data-page") === page);
+      var dp = a.getAttribute("data-page");
+      if (dp) a.classList.toggle("active", dp === page);
     });
 
     var session = SEUAuth.getSession();
@@ -15,6 +16,18 @@ window.SEUShell = {
         "</strong><span>@" +
         (session.username || "") +
         "</span></div>";
+    }
+
+    // Editor link for allowed roles
+    var nav = document.querySelector(".nav");
+    if (nav && SEUAuth.canEdit() && !document.getElementById("edit-link")) {
+      var link = document.createElement("a");
+      link.href = "edit.html";
+      link.className = "nav-link";
+      link.id = "edit-link";
+      link.textContent = "Edit guide";
+      if (page === "edit") link.classList.add("active");
+      nav.appendChild(link);
     }
 
     var logout = document.getElementById("logout");

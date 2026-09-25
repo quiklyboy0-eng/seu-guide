@@ -1,5 +1,5 @@
 window.SEUAuth = (function () {
-  const STORAGE = "seu_session_v2";
+  const STORAGE = "seu_session_v3";
   const cfg = () => window.SEU_CONFIG || {};
 
   function getSession() {
@@ -21,6 +21,17 @@ window.SEUAuth = (function () {
   function isLoggedIn() {
     const s = getSession();
     return !!(s && s.userId && s.ok);
+  }
+
+  function hasAnyRole(roleIds) {
+    const s = getSession();
+    if (!s || !s.roles || !roleIds || !roleIds.length) return false;
+    const set = new Set(s.roles.map(String));
+    return roleIds.some(function (id) { return set.has(String(id)); });
+  }
+
+  function canEdit() {
+    return hasAnyRole(cfg().editorRoleIds || []);
   }
 
   function requireAuth() {
@@ -49,6 +60,12 @@ window.SEUAuth = (function () {
       prompt: "consent",
     });
     location.href = "https://discord.com/api/oauth2/authorize?" + params.toString();
+  }
+
+  function roleAllowed(roles, allowed) {
+    if (!allowed || !allowed.length) return true;
+    const set = new Set((roles || []).map(String));
+    return allowed.some(function (id) { return set.has(String(id)); });
   }
 
   async function exchangeCodeBrowser(code) {
@@ -91,8 +108,9 @@ window.SEUAuth = (function () {
       };
     }
 
-    const roles = member.roles || [];
-    if (!roles.includes(String(c.requiredRoleId))) {
+    const roles = (member.roles || []).map(String);
+    const required = c.requiredRoleIds || (c.requiredRoleId ? [c.requiredRoleId] : []);
+    if (!roleAllowed(roles, required)) {
       return { ok: false, error: "You do not have the required rank role." };
     }
 
@@ -102,6 +120,7 @@ window.SEUAuth = (function () {
       username: user.username,
       globalName: user.global_name || user.username,
       avatar: user.avatar || null,
+      roles: roles,
     });
     return { ok: true };
   }
@@ -116,7 +135,7 @@ window.SEUAuth = (function () {
           code,
           redirectUri: c.redirectUri,
           guildId: c.guildId,
-          requiredRoleId: c.requiredRoleId,
+          requiredRoleIds: c.requiredRoleIds || [c.requiredRoleId],
         }),
       });
       const data = await res.json().catch(function () { return {}; });
@@ -129,10 +148,10 @@ window.SEUAuth = (function () {
         username: data.username,
         globalName: data.globalName || data.username,
         avatar: data.avatar || null,
+        roles: data.roles || [],
       });
       return { ok: true };
     }
-    // Fallback: browser-side exchange (uses clientSecret from config)
     return exchangeCodeBrowser(code);
   }
 
@@ -147,6 +166,8 @@ window.SEUAuth = (function () {
     startLogin: startLogin,
     handleCallback: handleCallback,
     getSession: getSession,
+    canEdit: canEdit,
+    hasAnyRole: hasAnyRole,
     logout: logout,
   };
 })();
