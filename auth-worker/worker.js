@@ -1,8 +1,20 @@
 /**
  * Cloudflare Worker — Discord OAuth + role validation + secure GitHub publishing
  *
- * Required Worker secrets: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET,
- * GITHUB_TOKEN, and PUBLISH_SECRET.
+ * Required Worker secrets:
+ *   DISCORD_CLIENT_ID
+ *   DISCORD_CLIENT_SECRET
+ *   GITHUB_TOKEN
+ *   PUBLISH_SECRET
+ * Required Worker variables:
+ *   EDITOR_ROLE_ID (or EDITOR_ROLE_IDS as comma-separated list)
+ * Optional:
+ *   REQUIRED_ROLE_ID
+ *
+ * Optional environment variables:
+ *   GITHUB_REPO (default: quiklyboy0-eng/seu-guide)
+ *   GITHUB_CONTENT_PATH (default: content.json)
+ *   GITHUB_BRANCH (default: main)
  */
 export default {
   async fetch(request, env) {
@@ -10,7 +22,6 @@ export default {
       "Access-Control-Allow-Origin": "https://quiklyboy0-eng.github.io",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Max-Age": "86400",
       "Vary": "Origin",
     };
 
@@ -18,24 +29,22 @@ export default {
       return new Response(null, { status: 204, headers: cors });
     }
 
-    try {
-      const url = new URL(request.url);
-      if (url.pathname === "/auth/discord" || url.pathname === "/") {
-        if (request.method !== "POST") {
-          return json({ ok: false, error: "Method not allowed" }, 405, cors);
-        }
-        return await handleDiscordAuth(request, env, cors);
+    const url = new URL(request.url);
+    if (url.pathname === "/auth/discord" || url.pathname === "/") {
+      if (request.method !== "POST") {
+        return json({ ok: false, error: "Method not allowed" }, 405, cors);
       }
-
-      if (url.pathname === "/publish") {
-        return await handlePublish(request, env, cors);
-      }
-
-      return json({ ok: false, error: "Not found" }, 404, cors);
-    } catch (error) {
-      // Never include exception text because platform errors can contain sensitive details.
-      return json({ ok: false, error: "Worker request failed while processing the request" }, 500, cors);
+      return await handleDiscordAuth(request, env, cors);
     }
+
+    if (url.pathname === "/publish") {
+      if (request.method !== "POST") {
+        return json({ ok: false, error: "Method not allowed" }, 405, cors);
+      }
+      return await handlePublish(request, env, cors);
+    }
+
+    return json({ ok: false, error: "Not found" }, 404, cors);
   },
 };
 
@@ -96,27 +105,64 @@ async function handleDiscordAuth(request, env, cors) {
 }
 
 async function handlePublish(request, env, cors) {
-  if (request.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405, cors);
   const authHeader = request.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
-  if (!token || !env.PUBLISH_SECRET || token !== env.PUBLISH_SECRET) return json({ ok: false, error: "Unauthorized" }, 401, cors);
+  if (!token) {
+    return json({ ok: false, error: "Missing Authorization token" }, 401, cors);
+  }
+
+  const expectedToken = env.PUBLISH_SECRET;
+  if (!expectedToken) {
+    return json({ ok: false, error: "Server is missing PUBLISH_SECRET" }, 500, cors);
+  }
+
+  if (token !== expectedToken) {
+    return json({ ok: false, error: "Unauthorized" }, 401, cors);
+  }
 
   let body;
-  try { body = await request.json(); } catch { return json({ ok: false, error: "Invalid JSON payload" }, 400, cors); }
-  if (!body || !body.content || typeof body.content !== "object" || Array.isArray(body.content)) return json({ ok: false, error: "Missing content object" }, 400, cors);
-  if (!env.GITHUB_TOKEN) return json({ ok: false, error: "Server is missing GitHub publishing credentials" }, 500, cors);
+  try {
+    body = await request.json();
+  } catch {
+    return json({ ok: false, error: "Invalid JSON payload" }, 400, cors);
+  }
+
+  const content = body && body.content;
+  if (!content || typeof content !== "object") {
+    return json({ ok: false, error: "Missing content object" }, 400, cors);
+  }
+
+  if (!env.GITHUB_TOKEN) {
+    return json({ ok: false, error: "Server is missing GitHub publishing credentials" }, 500, cors);
+  }
 
   const repo = env.GITHUB_REPO || "quiklyboy0-eng/seu-guide";
   const path = env.GITHUB_CONTENT_PATH || "content.json";
   const api = "https://api.github.com/repos/" + repo + "/contents/" + path;
   const headers = { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+
   const getRes = await fetch(api, { headers });
   const meta = await getRes.json().catch(() => ({}));
-  if (!getRes.ok || !meta.sha) return json({ ok: false, error: "Could not read GitHub file metadata" }, 502, cors);
+  if (!getRes.ok || !meta.sha) {
+    return json({ ok: false, error: "Could not read GitHub file metadata" }, 502, cors);
+  }
 
-  const putRes = await fetch(api, { method: "PUT", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify({ message: "Update guide content via secure worker publish", content: btoa(unescape(encodeURIComponent(JSON.stringify(body.content, null, 2)))), branch: env.GITHUB_BRANCH || "main", sha: meta.sha }) });
+  const putRes = await fetch(api, {
+    method: "PUT",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: "Update guide content via secure worker publish",
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+      branch: env.GITHUB_BRANCH || "main",
+      sha: meta.sha,
+    }),
+  });
+
   const data = await putRes.json().catch(() => ({}));
-  if (!putRes.ok) return json({ ok: false, error: data.message || "GitHub update failed" }, 502, cors);
+  if (!putRes.ok) {
+    return json({ ok: false, error: data.message || "GitHub update failed" }, 502, cors);
+  }
+
   return json({ ok: true, sha: data.commit && data.commit.sha, message: "Published successfully" }, 200, cors);
 }
 
