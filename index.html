@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEU Guide · California Highway Patrol</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ACCESS GATE -->
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <div class="gate-badge">CHP · SEU</div>
+      <h1>Speed Enforcement Unit</h1>
+      <p class="gate-sub">Authorized personnel only. Enter your rank access key to continue.</p>
+      <form id="gate-form" autocomplete="off">
+        <label for="access-key">Access Key</label>
+        <input type="password" id="access-key" placeholder="Role access key" required />
+        <button type="submit">Enter Guide</button>
+        <p id="gate-error" class="gate-error" hidden>Invalid access key. Contact Command if you believe this is an error.</p>
+      </form>
+      <p class="gate-foot">Leaking this guide is an immediate blacklist.</p>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="app" class="app" hidden>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div>
+          <strong>Speed Enforcement</strong>
+          <span>Unit Guide</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#intro" class="nav-link active">Introduction</a>
+        <a href="#ranks" class="nav-link">Rank Structure</a>
+        <a href="#uniform" class="nav-link">Uniform &amp; Weapons</a>
+        <a href="#vehicles" class="nav-link">Vehicles</a>
+        <a href="#uof" class="nav-link">Use of Force</a>
+        <a href="#quota" class="nav-link">Quota &amp; LOA</a>
+        <a href="#retirement" class="nav-link">Retirement</a>
+        <a href="#punishments" class="nav-link">Punishments</a>
+        <a href="#tickets" class="nav-link">Ticket Handling</a>
+        <a href="#commands" class="nav-link">Commands</a>
+        <a href="#codes" class="nav-link">10-Codes</a>
+        <a href="#response" class="nav-link">Response Codes</a>
+        <a href="#command" class="nav-link">Command</a>
+      </nav>
+      <button type="button" id="logout" class="logout">Lock Guide</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Menu">☰</button>
+        <h2 id="page-title">Introduction</h2>
+      </header>
+
+      <div class="content">
+        <!-- INTRO -->
+        <section id="intro" class="section">
+          <div class="hero">
+            <p class="eyebrow">California Highway Patrol</p>
+            <h1>Speed Enforcement Unit</h1>
+            <p class="lead">Official unit guide for authorized SEU members. Follow all policies exactly as written.</p>
+          </div>
+          <div class="card-grid">
+            <div class="card">
+              <h3>Commander</h3>
+              <p>xnotzjess · SE-001</p>
+            </div>
+            <div class="card">
+              <h3>Deputy Commander</h3>
+              <p>Harry29hb213 · SE-002</p>
+            </div>
+            <div class="card">
+              <h3>Assistant Commanders</h3>
+              <p>Omer · SE-003<br />Ykald · SE-004</p>
+            </div>
+          </div>
+          <div class="callout danger">
+            <strong>Warning</strong>
+            Leaking this handbook or guide content will result in an immediate blacklist.
+          </div>
+        </section>
+
+        <!-- RANKS -->
+        <section id="ranks" class="section" hidden>
+          <h1>Rank Structure</h1>
+          <div class="rank-block">
+            <h3>Commanders Office</h3>
+            <ul class="rank-list">
+              <li>Commander</li>
+              <li>Deputy Commander</li>
+              <li>Assistant Commander</li>
+            </ul>
+          </div>
+          <div class="rank-block">
+            <h3>High Command Team</h3>
+            <ul class="rank-list">
+              <li>Chief</li>
+              <li>Assistant Chief</li>
+            </ul>
+          </div>
+          <div class="rank-block">
+            <h3>High Rank Team</h3>
+            <ul class="rank-list">
+              <li>Captain II</li>
+              <li>Captain I</li>
+              <li>Lieutenant</li>
+            </ul>
+          </div>
+          <div class="rank-block">
+            <h3>Supervisor Rank Team</h3>
+            <ul class="rank-list">
+              <li>Senior Sergeant</li>
+              <li>Sergeant</li>
+              <li>Junior Sergeant</li>
+            </ul>
+          </div>
+          <div class="rank-block">
+            <h3>Low Rank Team</h3>
+            <ul class="rank-list">
+              <li>Corporal</li>
+              <li>Officer First Class</li>
+              <li>Officer</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- UNIFORM & WEAPONS -->
+        <section id="uniform" class="section" hidden>
+          <h1>Uniform &amp; Weapons</h1>
+          <h2>Uniform Regulations</h2>
+          <ul class="clean-list">
+            <li><strong>CHP | SEU Officer</strong> — Every SEU member</li>
+            <li><strong>CHP | SEU Supervisor</strong> — SGT+</li>
+            <li><strong>CHP | SEU Command</strong> — Board of Commanders</li>
+          </ul>
+          <h2>Weapon Regulations</h2>
+          <p>All weapon regulations follow your rank. Failure results in an infraction.</p>
+          <div class="split">
+            <div>
+              <h3>Default Weaponry</h3>
+              <ul class="clean-list">
+                <li>Shield 9</li>
+                <li>Glock 17</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Class 2</h3>
+              <ul class="clean-list">
+                <li>M4A1</li>
+                <li>Ruger SR 556</li>
+                <li>Type 89</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Class 3</h3>
+              <ul class="clean-list">
+                <li>SPAS 12</li>
+                <li>Fabarm FP6</li>
+                <li>Benelli M4</li>
+              </ul>
+            </div>
+          </div>
+          <h2>Required Loadout</h2>
+          <p>Equip before leaving the station:</p>
+          <ul class="clean-list">
+            <li>Taser</li>
+            <li>Handcuffs</li>
+            <li>MDT</li>
+            <li>Cones (trunk)</li>
+            <li>Flares (trunk)</li>
+            <li>Pepper Spray</li>
+          </ul>
+        </section>
+
+        <!-- VEHICLES -->
+        <section id="vehicles" class="section" hidden>
+          <h1>Vehicle Regulations</h1>
+          <div class="split">
+            <div class="card">
+              <h3>Low Rank+</h3>
+              <ul class="clean-list">
+                <li>2015 Bullhorn Prancer Pursuit</li>
+                <li>2011 Bullhorn Prancer Pursuit</li>
+                <li>2020 Bullhorn Prancer Widebody <em>(Main SEU)</em></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Middle Rank+</h3>
+              <ul class="clean-list">
+                <li>2022 Bullhorn Determinator C/T</li>
+                <li>2011 Chevlon Amigo LZR</li>
+                <li>2024 Falcon eStallion</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>High Rank+</h3>
+              <ul class="clean-list">
+                <li>2024 Celestial Truckatron</li>
+                <li>2014 Chevlon Corbetta RZR</li>
+                <li>Falcon Stallion 350 Interceptor</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>High Command+</h3>
+              <p>Any vehicle. Bypasses certifications and regulations.</p>
+            </div>
+          </div>
+          <div class="callout">
+            <strong>MISC</strong>
+            2022 Bullhorn Determinator SFP Fury — Must be EVOC certified and trained in CHP.
+          </div>
+          <p>You may use undercover or CHP | Polar liveries if no livery is available.</p>
+          <h2>Lighting &amp; Accessories</h2>
+          <div class="split">
+            <div>
+              <h3>Lightbars</h3>
+              <ul class="clean-list">
+                <li>Liberty</li>
+                <li>Integrity</li>
+                <li>Legacy</li>
+              </ul>
+              <p class="muted">Lightbars not required — dash/visor lights OK.</p>
+            </div>
+            <div>
+              <h3>Optional Lighting</h3>
+              <ul class="clean-list">
+                <li>Dash / Rear Window / Side Window</li>
+                <li>Grille / Fog Lights</li>
+                <li>Siderunners (Major+)</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Accessories</h3>
+              <ul class="clean-list">
+                <li>Pushbar (required &amp; wraparound if available)</li>
+                <li>Two antennas of choice</li>
+                <li>Grappler (SGT+)</li>
+                <li>Minimum 1 spotlight</li>
+                <li>ALPR</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout">
+            <strong>Undercover</strong>
+            AC+ may use undercover vehicles without antennas or police identifiers for covert approaches.
+          </div>
+        </section>
+
+        <!-- UOF -->
+        <section id="uof" class="section" hidden>
+          <h1>Use of Force</h1>
+          <p>Use of force is heavily enforced. De-escalate properly and calmly at all times.</p>
+          <ol class="rules">
+            <li>Aiming your gun at an unarmed civilian or another officer at any time results in an infraction.</li>
+            <li>Firing when there is no threat results in an infraction.</li>
+            <li>Shooting or killing a civilian with no apparent threat results in termination from the division.</li>
+            <li>Mag-dumping a corpse results in an infraction.</li>
+          </ol>
+        </section>
+
+        <!-- QUOTA -->
+        <section id="quota" class="section" hidden>
+          <h1>Patrol Quota &amp; LOA</h1>
+          <p>Officers must hit weekly shift quota to remain active and eligible for promotion. Quotas are checked Friday evenings.</p>
+          <div class="card-grid">
+            <div class="card"><h3>Senior High Rank+</h3><p>1 hour</p></div>
+            <div class="card"><h3>High Rank</h3><p>1 hour</p></div>
+            <div class="card"><h3>Middle Rank</h3><p>2 hours</p></div>
+            <div class="card"><h3>Low Rank</h3><p>2 hours</p></div>
+          </div>
+          <div class="callout danger">
+            <strong>Missed quota</strong>
+            Each miss = 1 strike. Miss 3 times in a row without LOA = removal from the division. Always check announcements for current quota.
+          </div>
+          <h2>Promotional Policy</h2>
+          <p>Eligible by hitting weekly quota, consistency, and performance. High Rank+ promotions consider additional factors beyond shift time.</p>
+          <h2>LOA Policy</h2>
+          <p>Request Leave of Absence up to 3 weeks. Request extensions via ticket to HR. Notify HR before LOA ends if you still cannot play — or risk infraction.</p>
+        </section>
+
+        <!-- RETIREMENT -->
+        <section id="retirement" class="section" hidden>
+          <h1>Retirement &amp; Reinstatement</h1>
+          <div class="callout">
+            When retiring, you may reinstate within <strong>two months</strong> (1× demotion). If you reinstate after one month, re-training is required. Some certifications are not regained if you are not the required rank.
+          </div>
+        </section>
+
+        <!-- PUNISHMENTS -->
+        <section id="punishments" class="section" hidden>
+          <h1>Punishments List</h1>
+          <p>Follow this list exactly. Deviation is itself an infraction.</p>
+          <h2>Warnings</h2>
+          <ul class="clean-list compact">
+            <li>FRP · RDM · VDM</li>
+            <li>Vehicle / uniform regulation violations (one per)</li>
+            <li>Shift farming · Unrealistic avatar</li>
+            <li>Failure to follow chain of command</li>
+            <li>Minor Lack of SPaG · Minor radio/ticket misuse</li>
+          </ul>
+          <h2>Strike</h2>
+          <ul class="clean-list compact">
+            <li>Ignoring officer instructions (may demote by severity)</li>
+            <li>Shift farming over 3+ hours</li>
+            <li>Major Lack of SPaG · Major radio/ticket misuse</li>
+            <li>UoF violations → Strike → Suspension → Term + Blacklist</li>
+            <li>3 Warnings → 1 Strike</li>
+          </ul>
+          <h2>Suspension</h2>
+          <ul class="clean-list compact">
+            <li>Max warnings + strikes · UoF second offence</li>
+            <li>Mishandling a scene · Abuse of power</li>
+            <li>Endangering civilians</li>
+            <li>3 Strikes = 3-day suspension</li>
+          </ul>
+          <h2>Demotion / Termination</h2>
+          <ul class="clean-list compact">
+            <li>1 Suspension + 3 Strikes = Demotion</li>
+            <li>Demotion + 3 Strikes = Termination</li>
+            <li>Murder / Corruption / Harassment / Exploiting → Term + Blacklist</li>
+            <li>Leaving during investigation · Leaving without retirement → Termination</li>
+          </ul>
+          <div class="formula">
+            <span>3 Warnings = 1 Strike</span>
+            <span>3 Strikes = 3d Suspension</span>
+            <span>1 Susp + 3 Strikes = Demotion</span>
+            <span>Demotion + 3 Strikes = Termination</span>
+          </div>
+        </section>
+
+        <!-- TICKETS -->
+        <section id="tickets" class="section" hidden>
+          <h1>Ticket Handling</h1>
+          <p>Use the correct status markers. Non-compliance can result in an infraction.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Status</th><th>Format</th><th>Rules</th></tr>
+              </thead>
+              <tbody>
+                <tr class="row-green"><td><span class="dot green"></span> Claimed</td><td>Your Username</td><td>Only handler may speak unless PTS</td></tr>
+                <tr class="row-orange"><td><span class="dot orange"></span> User needed</td><td>Username</td><td>Orange circle + username so they handle it</td></tr>
+                <tr class="row-red"><td><span class="dot red"></span> Report</td><td>Reported user</td><td>When reporting someone who can see tickets</td></tr>
+                <tr class="row-gray"><td><span class="dot gray"></span> Office of Commanders</td><td>Required</td><td>Only SEU Commander; no speech without PTS</td></tr>
+                <tr class="row-dark"><td><span class="dot dark"></span> Do Not Close</td><td>—</td><td>Stay open until further notice</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- COMMANDS -->
+        <section id="commands" class="section" hidden>
+          <h1>Commands</h1>
+          <p>Always use the pipe <code>|</code> to separate fields.</p>
+          <div class="code-block">
+            <code>!infract (@user) | (punishment) | (reason)</code>
+            <code>!retire (@user) | (message)</code>
+            <code>!deploy (@user) | (@user)</code>
+          </div>
+          <h2>Examples</h2>
+          <div class="code-block">
+            <code>!infract @xnotzjess | Warning | FRP</code>
+            <code>!retire @xnotzjess | Users rank of retirement | User wished to retire</code>
+            <code>!deploy @xnotzjess | @xnotzjess | (Deployment type)</code>
+          </div>
+          <p class="muted">Deployment requires @Senior high rank team+. Second @user is co-host (or N/A).</p>
+          <h2>Deployments</h2>
+          <p>Cooldown is <strong>2 hours</strong>. Only break if requested by Supervisors from the LANCRP Staff Team.</p>
+        </section>
+
+        <!-- 10 CODES -->
+        <section id="codes" class="section" hidden>
+          <h1>RTO 10-Codes</h1>
+          <div class="codes-grid" id="codes-grid"></div>
+        </section>
+
+        <!-- RESPONSE -->
+        <section id="response" class="section" hidden>
+          <h1>Response Codes</h1>
+          <div class="card-grid">
+            <div class="card"><h3>Code 1</h3><p>No lights or sirens</p></div>
+            <div class="card"><h3>Code 2</h3><p>Lights, no sirens</p></div>
+            <div class="card"><h3>Code 3</h3><p>Lights and sirens</p></div>
+            <div class="card"><h3>Code 4</h3><p>Scene is clear</p></div>
+            <div class="card"><h3>Code 5</h3><p>Felony stop</p></div>
+          </div>
+        </section>
+
+        <!-- COMMAND SIG -->
+        <section id="command" class="section" hidden>
+          <h1>Command Signatures</h1>
+          <div class="sig-grid">
+            <div class="sig-card">
+              <span class="callsign">SE-001</span>
+              <strong>xnotzjess</strong>
+              <span class="rank">COMM</span>
+              <span class="sig-mark">— xnotzjess —</span>
+            </div>
+            <div class="sig-card">
+              <span class="callsign">SE-002</span>
+              <strong>harry29hb214</strong>
+              <span class="rank">DCOMM</span>
+              <span class="sig-mark">— harry29hb214 —</span>
+            </div>
+            <div class="sig-card">
+              <span class="callsign">SE-003</span>
+              <strong>omerisulukboku</strong>
+              <span class="rank">ACOMM</span>
+              <span class="sig-mark">— omerisulukboku —</span>
+            </div>
+            <div class="sig-card">
+              <span class="callsign">SE-004</span>
+              <strong>ykaldjane2319</strong>
+              <span class="rank">ACOMM</span>
+              <span class="sig-mark">— ykaldjane2319 —</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
