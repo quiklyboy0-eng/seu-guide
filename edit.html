@@ -107,6 +107,14 @@
             <label>Undercover</label>
             <textarea name="vehicles.undercover"></textarea>
           </div>
+          
+          <div class="editor-section">
+            <h3>Publish settings</h3>
+            <p class="hint">Paste a GitHub token once so Save updates the live site for everyone. Stored only in this browser session (not in the code).</p>
+            <label>GitHub token (contents:write on seu-guide)</label>
+            <input type="password" id="github-token" placeholder="ghp_..." autocomplete="off" />
+          </div>
+
           <div class="editor-actions">
             <button type="submit" class="btn-primary">Save</button>
             <button type="button" class="btn-secondary" id="btn-local">Save in this browser only</button>
@@ -210,8 +218,17 @@
         el.className = "editor-status " + (ok ? "ok" : "err");
       }
 
+      var tokenInput = document.getElementById("github-token");
+      if (tokenInput) {
+        tokenInput.value = SEUContent.getToken() || "";
+        tokenInput.addEventListener("change", function () {
+          SEUContent.setToken(tokenInput.value.trim());
+        });
+      }
+
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
+        if (tokenInput) SEUContent.setToken(tokenInput.value.trim());
         var payload = buildPayload();
         SEUContent.saveLocal(payload);
         var result = await SEUContent.saveGitHub(payload);

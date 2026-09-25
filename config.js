@@ -1,12 +1,10 @@
 // Discord OAuth configuration
-// WARNING: clientSecret in the browser is NOT secure on a public site.
+// WARNING: clientSecret in the browser is visible in page source.
 window.SEU_CONFIG = {
   clientId: "1552851671862874112",
   clientSecret: "PAKS4OcMu7S9XR0LlsQNt6mswp_-JkkR",
   guildId: "1525668434065752116",
-  // Must have ONE of these roles to open the guide
   requiredRoleIds: ["1525668434074144890"],
-  // Must have ONE of these roles to edit the guide
   editorRoleIds: [
     "1532108760024354947",
     "1525669484084334714",
@@ -14,8 +12,8 @@ window.SEU_CONFIG = {
   ],
   redirectUri: "https://quiklyboy0-eng.github.io/seu-guide/callback.html",
   authApiUrl: "",
-  // Optional: GitHub PAT with contents:write on seu-guide repo so Save publishes for everyone
-  // Create at https://github.com/settings/tokens (fine-grained, only this repo)
+  // Do NOT put githubToken here — GitHub blocks pushes that contain PATs.
+  // Editors paste the token once on the Edit page (stored in this browser only).
   githubToken: "",
   githubRepo: "quiklyboy0-eng/seu-guide",
   githubPath: "content.json",

@@ -1,5 +1,6 @@
 window.SEUContent = (function () {
   const LS_KEY = "seu_content_override_v1";
+  const TOKEN_KEY = "seu_github_token";
   let cached = null;
 
   async function load() {
@@ -32,12 +33,14 @@ window.SEUContent = (function () {
     return b !== undefined ? b : a;
   }
 
-  function getLocalOverride() {
-    try {
-      return JSON.parse(localStorage.getItem(LS_KEY) || "null");
-    } catch {
-      return null;
-    }
+  function getToken() {
+    const c = window.SEU_CONFIG || {};
+    return sessionStorage.getItem(TOKEN_KEY) || c.githubToken || "";
+  }
+
+  function setToken(token) {
+    if (token) sessionStorage.setItem(TOKEN_KEY, token);
+    else sessionStorage.removeItem(TOKEN_KEY);
   }
 
   function saveLocal(data) {
@@ -52,8 +55,9 @@ window.SEUContent = (function () {
 
   async function saveGitHub(data) {
     const c = window.SEU_CONFIG || {};
-    if (!c.githubToken || !c.githubRepo) {
-      return { ok: false, error: "GitHub token not set in config.js — saved locally only." };
+    const token = getToken();
+    if (!token || !c.githubRepo) {
+      return { ok: false, error: "No GitHub token — paste it on the Edit page, then Save again." };
     }
     const path = c.githubPath || "content.json";
     const api = "https://api.github.com/repos/" + c.githubRepo + "/contents/" + path;
@@ -61,7 +65,7 @@ window.SEUContent = (function () {
     try {
       const getRes = await fetch(api, {
         headers: {
-          Authorization: "Bearer " + c.githubToken,
+          Authorization: "Bearer " + token,
           Accept: "application/vnd.github+json",
         },
       });
@@ -81,7 +85,7 @@ window.SEUContent = (function () {
     const putRes = await fetch(api, {
       method: "PUT",
       headers: {
-        Authorization: "Bearer " + c.githubToken,
+        Authorization: "Bearer " + token,
         Accept: "application/vnd.github+json",
         "Content-Type": "application/json",
       },
@@ -89,7 +93,7 @@ window.SEUContent = (function () {
     });
     if (!putRes.ok) {
       const err = await putRes.json().catch(function () { return {}; });
-      return { ok: false, error: err.message || "GitHub save failed" };
+      return { ok: false, error: err.message || "GitHub save failed (" + putRes.status + ")" };
     }
     clearLocal();
     cached = data;
@@ -101,6 +105,7 @@ window.SEUContent = (function () {
     saveLocal: saveLocal,
     saveGitHub: saveGitHub,
     clearLocal: clearLocal,
-    getLocalOverride: getLocalOverride,
+    getToken: getToken,
+    setToken: setToken,
   };
 })();
