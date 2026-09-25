@@ -4,6 +4,7 @@ window.SEU_CONFIG={
   guildId:"1525668434065752116",
   requiredRoleIds:["1525668434074144890"],
   editorRoleIds:["1532108760024354947","1525669484084334714","1525668434120020134"],
+  adminBypassRoleIds:["1167146975385358394"],
   redirectUri:"https://quiklyboy0-eng.github.io/seu-guide/callback.html",
   authApiUrl:"https://seu-auth.quiklyboy0.workers.dev",
   publishApiUrl:"https://seu-auth.quiklyboy0.workers.dev",
