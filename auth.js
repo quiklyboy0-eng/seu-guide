@@ -37,15 +37,7 @@ window.SEUAuth = (function () {
     if (!c.clientId) {
       if (err) {
         err.hidden = false;
-        err.textContent =
-          "Discord login is not configured yet. Add your Discord Application Client ID in config.js (see README).";
-      }
-      return;
-    }
-    if (!c.redirectUri) {
-      if (err) {
-        err.hidden = false;
-        err.textContent = "Missing redirect URI in config.js";
+        err.textContent = "Discord Client ID is missing in config.js";
       }
       return;
     }
@@ -54,42 +46,94 @@ window.SEUAuth = (function () {
       response_type: "code",
       redirect_uri: c.redirectUri,
       scope: "identify guilds.members.read",
-      prompt: "none",
+      prompt: "consent",
     });
     location.href = "https://discord.com/api/oauth2/authorize?" + params.toString();
   }
 
-  async function handleCallback(code) {
+  async function exchangeCodeBrowser(code) {
     const c = cfg();
-    if (!c.authApiUrl) {
+    const body = new URLSearchParams({
+      client_id: c.clientId,
+      client_secret: c.clientSecret,
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: c.redirectUri,
+    });
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body,
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok || !tokenData.access_token) {
+      const msg = tokenData.error_description || tokenData.error || "Token exchange failed";
+      return { ok: false, error: msg };
+    }
+
+    const headers = { Authorization: "Bearer " + tokenData.access_token };
+
+    const userRes = await fetch("https://discord.com/api/users/@me", { headers });
+    const user = await userRes.json();
+    if (!userRes.ok || !user.id) {
+      return { ok: false, error: "Could not load Discord user" };
+    }
+
+    const memberRes = await fetch(
+      "https://discord.com/api/users/@me/guilds/" + c.guildId + "/member",
+      { headers }
+    );
+    const member = await memberRes.json();
+    if (!memberRes.ok) {
       return {
         ok: false,
-        error:
-          "Auth API not configured. Set authApiUrl in config.js to a backend that exchanges the Discord code and checks the role.",
+        error: "You must be in the SEU Discord server (and allow guilds.members.read).",
       };
     }
-    const res = await fetch(c.authApiUrl.replace(/\/$/, "") + "/auth/discord", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        redirectUri: c.redirectUri,
-        guildId: c.guildId,
-        requiredRoleId: c.requiredRoleId,
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.ok) {
-      return { ok: false, error: data.error || "Access denied" };
+
+    const roles = member.roles || [];
+    if (!roles.includes(String(c.requiredRoleId))) {
+      return { ok: false, error: "You do not have the required rank role." };
     }
+
     setSession({
       ok: true,
-      userId: data.userId,
-      username: data.username,
-      globalName: data.globalName || data.username,
-      avatar: data.avatar || null,
+      userId: user.id,
+      username: user.username,
+      globalName: user.global_name || user.username,
+      avatar: user.avatar || null,
     });
     return { ok: true };
+  }
+
+  async function handleCallback(code) {
+    const c = cfg();
+    if (c.authApiUrl) {
+      const res = await fetch(c.authApiUrl.replace(/\/$/, "") + "/auth/discord", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code,
+          redirectUri: c.redirectUri,
+          guildId: c.guildId,
+          requiredRoleId: c.requiredRoleId,
+        }),
+      });
+      const data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.ok) {
+        return { ok: false, error: data.error || "Access denied" };
+      }
+      setSession({
+        ok: true,
+        userId: data.userId,
+        username: data.username,
+        globalName: data.globalName || data.username,
+        avatar: data.avatar || null,
+      });
+      return { ok: true };
+    }
+    // Fallback: browser-side exchange (uses clientSecret from config)
+    return exchangeCodeBrowser(code);
   }
 
   function logout() {
@@ -98,11 +142,11 @@ window.SEUAuth = (function () {
   }
 
   return {
-    isLoggedIn,
-    requireAuth,
-    startLogin,
-    handleCallback,
-    getSession,
-    logout,
+    isLoggedIn: isLoggedIn,
+    requireAuth: requireAuth,
+    startLogin: startLogin,
+    handleCallback: handleCallback,
+    getSession: getSession,
+    logout: logout,
   };
 })();
