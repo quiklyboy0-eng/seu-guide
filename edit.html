@@ -1,1 +1,313 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edit Guide · SEU</title><link rel="stylesheet" href="styles.css"></head><body><div class="app"><aside class="sidebar"><div class="brand"><span class="brand-mark">SEU</span><div><strong>Speed Enforcement</strong><span>Unit Guide</span></div></div><nav class="nav"><a href="home.html" class="nav-link">← Back to guide</a><a href="edit.html" class="nav-link active">Edit guide</a></nav><div class="user-box" id="user-box"></div><button class="logout" id="logout">Sign out</button></aside><main class="main"><header class="topbar"><button class="menu-toggle" id="menu-toggle">☰</button><h2>Content editor</h2></header><div class="content editor-page"><div class="hero"><p class="eyebrow">Authorized editor</p><h1>Guide content control</h1><p class="lead">Edit the complete content schema. Nothing is silently discarded.</p></div><div id="denied" class="callout danger" hidden>You do not have permission to edit the guide.</div><form id="editor-form" hidden><div class="card"><label for="json-editor">content.json</label><p class="muted">Edit valid JSON to add, remove, reorder, or update any existing section, list, code, vehicle, rank, command entry, or configured field.</p><textarea id="json-editor" spellcheck="false" style="min-height:520px;width:100%;margin-top:12px;padding:14px;background:#070b12;color:#e8edf5;border:1px solid var(--border);border-radius:10px;font:13px monospace"></textarea><p id="validation" class="editor-status" aria-live="polite"></p></div><div class="editor-actions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn-primary" type="submit">Publish changes</button><button class="btn-secondary" type="button" id="preview">Preview JSON</button><button class="btn-secondary" type="button" id="cancel">Cancel</button></div><p id="status" class="editor-status" aria-live="polite"></p></form></div></main></div><script src="config.js"></script><script src="auth.js"></script><script src="content.js"></script><script src="shell.js"></script><script>SEUShell.init('edit');(async()=>{if(!SEUAuth.requireAuth())return;const f=document.getElementById('editor-form'),denied=document.getElementById('denied');if(!SEUAuth.canEdit()){denied.hidden=false;return}f.hidden=false;const area=document.getElementById('json-editor'),status=document.getElementById('status'),validation=document.getElementById('validation');const data=await SEUContent.load();area.value=JSON.stringify(data,null,2);let dirty=false;area.oninput=()=>{dirty=true;validation.textContent='Unsaved changes';validation.className='editor-status err'};function parse(){try{const d=JSON.parse(area.value),e=SEUContent.validate(d);if(e)throw Error(e);return d}catch(e){validation.textContent=e.message;validation.className='editor-status err';return null}}document.getElementById('preview').onclick=()=>{const d=parse();if(d)alert(JSON.stringify(d,null,2))};document.getElementById('cancel').onclick=()=>{if(!dirty||confirm('Discard unsaved changes?'))location.href='home.html'};f.onsubmit=async e=>{e.preventDefault();const d=parse();if(!d)return;status.textContent='Publishing…';status.className='editor-status';SEUContent.saveDraft(d);const r=await SEUContent.publish(d);if(r.ok){dirty=false;status.textContent='Published successfully. Commit '+(r.commit||'created')+'. Returning to guide…';status.className='editor-status ok';setTimeout(()=>location.href='home.html',1200)}else{status.textContent=r.error+' Your edits remain in this draft; retry when ready.';status.className='editor-status err'}}})()</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Guide · SEU</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div>
+          <strong>Speed Enforcement</strong>
+          <span>Unit Guide</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" href="home.html" data-page="home">Back to guide</a>
+        <a class="nav-link active" href="edit.html" data-page="edit">Edit guide</a>
+      </nav>
+      <div class="user-box" id="user-box"></div>
+      <button class="logout" id="logout">Sign out</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menu-toggle">☰</button>
+        <h2>Content editor</h2>
+      </header>
+
+      <div class="content editor-page">
+        <div class="hero">
+          <p class="eyebrow">Authorized editor</p>
+          <h1>Guide content controls</h1>
+          <p class="lead">Edit the visible SEU guide content without exposing raw JSON or source code.</p>
+        </div>
+
+        <div id="denied" class="callout danger" hidden>
+          You do not have permission to edit the guide.
+        </div>
+
+        <form id="editor-form" hidden>
+          <div id="editor-root" class="editor-root"></div>
+
+          <div class="editor-actions">
+            <button class="btn primary" type="submit">Publish changes</button>
+            <button class="btn secondary" type="button" id="cancel">Cancel</button>
+          </div>
+
+          <p id="status" class="editor-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="content.js"></script>
+  <script src="shell.js"></script>
+  <script>
+    (async function () {
+      if (!window.SEUAuth || !window.SEUAuth.requireAuth()) return;
+
+      const denied = document.getElementById('denied');
+      const form = document.getElementById('editor-form');
+      const root = document.getElementById('editor-root');
+      const status = document.getElementById('status');
+
+      if (!SEUAuth.canEdit()) {
+        denied.hidden = false;
+        return;
+      }
+
+      form.hidden = false;
+
+      const original = await SEUContent.load();
+      let content = JSON.parse(JSON.stringify(original));
+
+      function prettifyKey(key) {
+        return key
+          .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+          .replace(/[_-]+/g, ' ')
+          .replace(/\b\w/g, ch => ch.toUpperCase());
+      }
+
+      function ensureArrayItemValue(type) {
+        if (type === 'object') return {};
+        if (type === 'number') return 0;
+        if (type === 'boolean') return false;
+        return '';
+      }
+
+      function createInput(type, value) {
+        const input = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+        if (type !== 'textarea') {
+          input.type = type;
+        }
+        if (type === 'number') {
+          input.value = Number(value || 0);
+        } else if (type === 'checkbox') {
+          input.checked = !!value;
+        } else {
+          input.value = value == null ? '' : String(value);
+        }
+        return input;
+      }
+
+      function setValueFromInput(target, input, type) {
+        if (type === 'checkbox') {
+          target = !!input.checked;
+        } else if (type === 'number') {
+          target = Number(input.value);
+        } else if (type === 'textarea') {
+          target = input.value;
+        } else {
+          target = input.value;
+        }
+        return target;
+      }
+
+      function renderPrimitiveField(path, labelText, currentValue, type) {
+        const field = document.createElement('label');
+        field.className = 'field';
+        const name = document.createElement('span');
+        name.className = 'field-label';
+        name.textContent = labelText;
+        const input = createInput(type, currentValue);
+        input.dataset.path = JSON.stringify(path);
+        input.addEventListener('input', function () {
+          const value = setValueFromInput(currentValue, input, type);
+          assignPath(content, path, value);
+          status.textContent = 'Unsaved changes';
+          status.className = 'editor-status dirty';
+        });
+        field.appendChild(name);
+        field.appendChild(input);
+        return field;
+      }
+
+      function renderArrayEditor(path, key, items) {
+        const block = document.createElement('div');
+        block.className = 'field-group field-array';
+
+        const header = document.createElement('div');
+        header.className = 'field-header';
+        const label = document.createElement('strong');
+        label.textContent = prettifyKey(key);
+        header.appendChild(label);
+
+        const list = document.createElement('div');
+        list.className = 'array-list';
+
+        if (!Array.isArray(items)) {
+          items = [];
+        }
+
+        items.forEach((item, index) => {
+          const row = document.createElement('div');
+          row.className = 'array-row';
+
+          if (Array.isArray(item) && item.length === 2 && (typeof item[0] === 'string' || typeof item[0] === 'number') && (typeof item[1] === 'string' || typeof item[1] === 'number')) {
+            const pair = document.createElement('div');
+            pair.className = 'pair-row';
+
+            const left = renderPrimitiveField(path.concat(index, 0), 'Code', item[0], 'text');
+            const right = renderPrimitiveField(path.concat(index, 1), 'Meaning', item[1], 'text');
+            pair.appendChild(left);
+            pair.appendChild(right);
+            row.appendChild(pair);
+          } else if (Array.isArray(item)) {
+            const nested = document.createElement('div');
+            nested.className = 'field-subgroup';
+            item.forEach((entry, subIndex) => {
+              const subField = renderField(path.concat(index, subIndex), String(subIndex), entry, 'item');
+              nested.appendChild(subField);
+            });
+            row.appendChild(nested);
+          } else if (item && typeof item === 'object' && !Array.isArray(item)) {
+            const nested = document.createElement('div');
+            nested.className = 'field-subgroup';
+            renderObjectFields(nested, item, path.concat(index));
+            row.appendChild(nested);
+          } else {
+            const primitive = renderPrimitiveField(path.concat(index), 'Item', item, typeof item === 'number' ? 'number' : 'text');
+            row.appendChild(primitive);
+          }
+
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'btn small danger';
+          del.textContent = 'Delete';
+          del.addEventListener('click', function () {
+            const arr = getPath(content, path);
+            arr.splice(index, 1);
+            renderEditor();
+          });
+          row.appendChild(del);
+          list.appendChild(row);
+        });
+
+        const add = document.createElement('button');
+        add.type = 'button';
+        add.className = 'btn small';
+        add.textContent = 'Add item';
+        add.addEventListener('click', function () {
+          const arr = getPath(content, path);
+          let nextValue = '';
+          if (key === 'tenCodes') {
+            nextValue = ['', ''];
+          } else if (Array.isArray(items[0]) && items[0].length === 2) {
+            nextValue = ['', ''];
+          } else if (items.length && items[0] && typeof items[0] === 'object' && !Array.isArray(items[0])) {
+            nextValue = {};
+          } else if (items.length && typeof items[0] === 'number') {
+            nextValue = 0;
+          } else if (items.length && typeof items[0] === 'boolean') {
+            nextValue = false;
+          }
+          arr.push(nextValue);
+          renderEditor();
+        });
+
+        block.appendChild(header);
+        block.appendChild(list);
+        block.appendChild(add);
+        return block;
+      }
+
+      function renderObjectFields(container, obj, path) {
+        Object.keys(obj).forEach(function (key) {
+          const value = obj[key];
+          const field = renderField(path, key, value, key);
+          if (field) container.appendChild(field);
+        });
+      }
+
+      function renderField(path, key, value, labelKey) {
+        if (Array.isArray(value)) {
+          return renderArrayEditor(path, key, value);
+        }
+
+        if (value && typeof value === 'object') {
+          const block = document.createElement('div');
+          block.className = 'field-group';
+          const header = document.createElement('div');
+          header.className = 'field-header';
+          const label = document.createElement('strong');
+          label.textContent = prettifyKey(key);
+          header.appendChild(label);
+          block.appendChild(header);
+          const inner = document.createElement('div');
+          inner.className = 'field-subgroup';
+          renderObjectFields(inner, value, path.concat(key));
+          block.appendChild(inner);
+          return block;
+        }
+
+        return renderPrimitiveField(path.concat(key), prettifyKey(key), value, typeof value === 'number' ? 'number' : 'text');
+      }
+
+      function getPath(obj, path) {
+        let current = obj;
+        for (const segment of path) {
+          if (current == null) return undefined;
+          current = current[segment];
+        }
+        return current;
+      }
+
+      function assignPath(obj, path, value) {
+        let current = obj;
+        for (let i = 0; i < path.length - 1; i++) {
+          current = current[path[i]];
+        }
+        current[path[path.length - 1]] = value;
+      }
+
+      function renderEditor() {
+        root.innerHTML = '';
+        renderObjectFields(root, content, []);
+      }
+
+      renderEditor();
+
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        status.textContent = 'Publishing changes…';
+        status.className = 'editor-status';
+
+        try {
+          const saved = JSON.parse(JSON.stringify(content));
+          const result = await SEUContent.publish(saved);
+          status.textContent = result && result.message ? result.message : 'Published successfully.';
+          status.className = 'editor-status ok';
+        } catch (error) {
+          status.textContent = error.message || 'Publish failed.';
+          status.className = 'editor-status error';
+        }
+      });
+
+      document.getElementById('cancel').addEventListener('click', function () {
+        location.href = 'home.html';
+      });
+
+      if (window.SEUShell && typeof window.SEUShell.init === 'function') {
+        window.SEUShell.init('edit');
+      }
+    })();
+  </script>
+</body>
+</html>
