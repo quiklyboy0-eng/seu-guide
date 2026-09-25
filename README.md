@@ -1,32 +1,26 @@
-# SEU Guide — California Highway Patrol
+# SEU Guide
 
-Private Speed Enforcement Unit guide site.
+Authorized Speed Enforcement Unit guide (multi-page site + Discord login).
 
-## Access
+## Live site
 
-Only members with the authorized rank role can enter. Use the Discord role ID as the access key:
+https://quiklyboy0-eng.github.io/seu-guide/
 
-```
-1525668434074144890
-```
+## Discord auth setup (required)
 
-## Deploy (GitHub Pages)
+GitHub Pages is static — role checks need a small backend.
 
-1. Create a new **public** repository on GitHub (e.g. `seu-guide`).
-2. Upload these files to the repo root (`index.html`, `styles.css`, `app.js`, `.nojekyll`).
-3. Go to **Settings → Pages**.
-4. Under **Build and deployment**, set Source to **Deploy from a branch**.
-5. Branch: `main` (or `master`), folder: `/ (root)`.
-6. Save. After a minute, your site will be at:
+1. Create an app at https://discord.com/developers/applications  
+2. OAuth2 → Redirects → add:
+   `https://quiklyboy0-eng.github.io/seu-guide/callback.html`
+3. Copy **Client ID** into `config.js` → `clientId`
+4. Set `guildId` to your Discord server ID
+5. `requiredRoleId` is already `1525668434074144890`
+6. Deploy the auth worker (see `auth-worker/`) and set `authApiUrl` in `config.js`
 
-```
-https://YOUR_USERNAME.github.io/seu-guide/
-```
+Without Client ID + auth API, the Discord button will show a setup message.
 
-## Local preview
+## Pages
 
-Open `index.html` in a browser, or run a simple server:
-
-```bash
-npx serve .
-```
+- Home, Ranks, Equipment, Vehicles, Use of Force
+- Quota & LOA, Retirement, 10-Codes, Response Codes, Command

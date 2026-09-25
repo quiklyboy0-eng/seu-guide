@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signing in… · SEU Guide</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="auth-page">
+  <div class="auth-shell" style="grid-template-columns:1fr">
+    <div class="auth-panel" style="max-width:420px;margin:auto">
+      <h1>Signing in…</h1>
+      <p class="auth-lead" id="status">Verifying Discord rank…</p>
+      <p id="auth-error" class="auth-error" hidden></p>
+    </div>
+  </div>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    (async function () {
+      var params = new URLSearchParams(location.search);
+      var code = params.get("code");
+      var err = params.get("error_description") || params.get("error");
+      var status = document.getElementById("status");
+      var errEl = document.getElementById("auth-error");
+      if (err) {
+        status.textContent = "Login failed.";
+        errEl.hidden = false;
+        errEl.textContent = err;
+        return;
+      }
+      if (!code) {
+        status.textContent = "Missing authorization code.";
+        errEl.hidden = false;
+        errEl.textContent = "No code returned from Discord.";
+        return;
+      }
+      try {
+        var result = await SEUAuth.handleCallback(code);
+        if (result.ok) {
+          status.textContent = "Access granted. Redirecting…";
+          location.replace("home.html");
+        } else {
+          status.textContent = "Access denied.";
+          errEl.hidden = false;
+          errEl.textContent = result.error || "You do not have the required rank.";
+        }
+      } catch (e) {
+        status.textContent = "Something went wrong.";
+        errEl.hidden = false;
+        errEl.textContent = e.message || String(e);
+      }
+    })();
+  </script>
+</body>
+</html>

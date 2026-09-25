@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uniform & Weapons · SEU Guide</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-mark">SEU</span>
+    <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
+  </div>
+  <nav class="nav">
+    <a href="home.html" class="nav-link" data-page="home">Home</a>
+    <a href="ranks.html" class="nav-link" data-page="ranks">Rank Structure</a>
+    <a href="equipment.html" class="nav-link" data-page="equipment">Uniform &amp; Weapons</a>
+    <a href="vehicles.html" class="nav-link" data-page="vehicles">Vehicles</a>
+    <a href="uof.html" class="nav-link" data-page="uof">Use of Force</a>
+    <a href="policies.html" class="nav-link" data-page="policies">Quota &amp; LOA</a>
+    <a href="retirement.html" class="nav-link" data-page="retirement">Retirement</a>
+    <a href="codes.html" class="nav-link" data-page="codes">10-Codes</a>
+    <a href="response.html" class="nav-link" data-page="response">Response Codes</a>
+    <a href="command.html" class="nav-link" data-page="command">Command</a>
+  </nav>
+  <div class="user-box" id="user-box"></div>
+  <button type="button" class="logout" id="logout">Sign out</button>
+</aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+        <h2>Uniform & Weapons</h2>
+      </header>
+      <div class="content">
+
+        <section class="section">
+          <h1>Uniform &amp; Weapons</h1>
+          <h2>Uniform Regulations</h2>
+          <ul class="clean-list">
+            <li><strong>CHP | SEU Officer</strong> — Every SEU member</li>
+            <li><strong>CHP | SEU Supervisor</strong> — SGT+</li>
+            <li><strong>CHP | SEU Command</strong> — Board of Commanders</li>
+          </ul>
+          <h2>Weapon Regulations</h2>
+          <p>All weapon regulations follow your rank. Failure results in an infraction.</p>
+          <div class="split">
+            <div><h3>Default</h3><ul class="clean-list"><li>Shield 9</li><li>Glock 17</li></ul></div>
+            <div><h3>Class 2</h3><ul class="clean-list"><li>M4A1</li><li>Ruger SR 556</li><li>Type 89</li></ul></div>
+            <div><h3>Class 3</h3><ul class="clean-list"><li>SPAS 12</li><li>Fabarm FP6</li><li>Benelli M4</li></ul></div>
+          </div>
+          <h2>Required Loadout</h2>
+          <p>Equip before leaving the station:</p>
+          <ul class="clean-list">
+            <li>Taser · Handcuffs · MDT</li>
+            <li>Cones (trunk) · Flares (trunk)</li>
+            <li>Pepper Spray</li>
+          </ul>
+        </section>
+
+      </div>
+    </main>
+  </div>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="shell.js"></script>
+  <script>SEUShell.init("equipment");</script>
+</body>
+</html>
