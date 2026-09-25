@@ -1,313 +1,890 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edit Guide · SEU</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Edit Guide · SEU</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.editor-page {
+  max-width: 1100px;
+}
+.editor-section {
+  margin-bottom: 18px;
+}
+.editor-section h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+.editor-section > .section-description {
+  margin: 0 0 16px;
+  color: var(--muted, #8d98aa);
+}
+.editor-field {
+  margin-bottom: 14px;
+}
+.editor-field label,
+.editor-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #cfd7e4;
+}
+.editor-input,
+.editor-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid var(--border, #263044);
+  border-radius: 9px;
+  background: #070b12;
+  color: #e8edf5;
+  font: inherit;
+  outline: none;
+}
+.editor-input:focus,
+.editor-textarea:focus {
+  border-color: #596b89;
+}
+.editor-textarea {
+  min-height: 105px;
+  resize: vertical;
+}
+.editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.editor-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--border, #263044);
+  border-radius: 10px;
+  background: rgba(255,255,255,.02);
+}
+.editor-row-fields {
+  min-width: 0;
+}
+.editor-row-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+}
+.editor-row-grid.three {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+}
+.editor-remove {
+  white-space: nowrap;
+  border: 1px solid #6b3030;
+  background: #241014;
+  color: #ffb5b5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.editor-remove:hover {
+  background: #32151a;
+}
+.editor-add {
+  margin-top: 10px;
+}
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  position: sticky;
+  bottom: 0;
+  padding: 14px 0;
+  background: linear-gradient(transparent,#080c13 25%);
+}
+.editor-status {
+  margin-top: 12px;
+}
+.editor-status.ok {
+  color: #7ee2a8;
+}
+.editor-status.err {
+  color: #ff8e8e;
+}
+.editor-status.dirty {
+  color: #e7c56b;
+}
+.empty-list {
+  padding: 14px;
+  border: 1px dashed var(--border, #263044);
+  border-radius: 9px;
+  color: var(--muted, #8d98aa);
+}
+@media (max-width: 700px) {
+  .editor-row,
+  .editor-row-grid,
+  .editor-row-grid.three {
+    grid-template-columns: 1fr;
+  }
+  .editor-remove {
+    width: 100%;
+  }
+  .editor-actions {
+    flex-direction: column;
+  }
+  .editor-actions button {
+    width: 100%;
+  }
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <span class="brand-mark">SEU</span>
-        <div>
-          <strong>Speed Enforcement</strong>
-          <span>Unit Guide</span>
-        </div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">SEU</span>
+      <div>
+        <strong>Speed Enforcement</strong>
+        <span>Unit Guide</span>
       </div>
-      <nav class="nav">
-        <a class="nav-link" href="home.html" data-page="home">Back to guide</a>
-        <a class="nav-link active" href="edit.html" data-page="edit">Edit guide</a>
-      </nav>
-      <div class="user-box" id="user-box"></div>
-      <button class="logout" id="logout">Sign out</button>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <button class="menu-toggle" id="menu-toggle">☰</button>
-        <h2>Content editor</h2>
-      </header>
-
-      <div class="content editor-page">
-        <div class="hero">
-          <p class="eyebrow">Authorized editor</p>
-          <h1>Guide content controls</h1>
-          <p class="lead">Edit the visible SEU guide content without exposing raw JSON or source code.</p>
-        </div>
-
-        <div id="denied" class="callout danger" hidden>
-          You do not have permission to edit the guide.
-        </div>
-
-        <form id="editor-form" hidden>
-          <div id="editor-root" class="editor-root"></div>
-
-          <div class="editor-actions">
-            <button class="btn primary" type="submit">Publish changes</button>
-            <button class="btn secondary" type="button" id="cancel">Cancel</button>
+    </div>
+    <nav class="nav">
+      <a href="home.html" class="nav-link">← Back to guide</a>
+      <a href="edit.html" class="nav-link active">Edit guide</a>
+    </nav>
+    <div class="user-box" id="user-box"></div>
+    <button class="logout" id="logout">Sign out</button>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <h2>Content editor</h2>
+    </header>
+    <div class="content editor-page">
+      <div class="hero">
+        <p class="eyebrow">Authorized editor</p>
+        <h1>Guide content control</h1>
+        <p class="lead">
+          Edit the guide using the fields below. No JSON or code is required.
+        </p>
+      </div>
+      <div id="denied" class="callout danger" hidden>
+        You do not have permission to edit the guide.
+      </div>
+      <div id="loading" class="callout">
+        Loading guide content…
+      </div>
+      <form id="editor-form" hidden>
+        <section class="card editor-section">
+          <h2>Home</h2>
+          <p class="section-description">Main guide information.</p>
+          <div class="editor-field">
+            <label for="home-title">Title</label>
+            <input class="editor-input" id="home-title">
           </div>
-
-          <p id="status" class="editor-status" aria-live="polite"></p>
-        </form>
-      </div>
-    </main>
-  </div>
-
-  <script src="config.js"></script>
-  <script src="auth.js"></script>
-  <script src="content.js"></script>
-  <script src="shell.js"></script>
-  <script>
-    (async function () {
-      if (!window.SEUAuth || !window.SEUAuth.requireAuth()) return;
-
-      const denied = document.getElementById('denied');
-      const form = document.getElementById('editor-form');
-      const root = document.getElementById('editor-root');
-      const status = document.getElementById('status');
-
-      if (!SEUAuth.canEdit()) {
-        denied.hidden = false;
+          <div class="editor-field">
+            <label for="home-lead">Lead</label>
+            <textarea class="editor-textarea" id="home-lead"></textarea>
+          </div>
+          <div class="editor-field">
+            <label for="home-warning">Warning</label>
+            <textarea class="editor-textarea" id="home-warning"></textarea>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Use of Force</h2>
+          <p class="section-description">Existing UOF introduction and rules.</p>
+          <div class="editor-field">
+            <label for="uof-intro">Introduction</label>
+            <textarea class="editor-textarea" id="uof-intro"></textarea>
+          </div>
+          <div class="editor-field">
+            <label>Rules</label>
+            <div class="editor-list" id="uof-rules"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-uof-rule">
+              + Add rule
+            </button>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Quota, Promotion & LOA</h2>
+          <p class="section-description">Existing policy text and quota values.</p>
+          <div class="editor-field">
+            <label for="quota-intro">Quota introduction</label>
+            <textarea class="editor-textarea" id="quota-intro"></textarea>
+          </div>
+          <div class="editor-field">
+            <label for="senior-high">Senior High quota</label>
+            <input class="editor-input" id="senior-high">
+          </div>
+          <div class="editor-field">
+            <label for="high">High quota</label>
+            <input class="editor-input" id="high">
+          </div>
+          <div class="editor-field">
+            <label for="middle">Middle quota</label>
+            <input class="editor-input" id="middle">
+          </div>
+          <div class="editor-field">
+            <label for="low">Low quota</label>
+            <input class="editor-input" id="low">
+          </div>
+          <div class="editor-field">
+            <label for="missed">Missed quota policy</label>
+            <textarea class="editor-textarea" id="missed"></textarea>
+          </div>
+          <div class="editor-field">
+            <label for="promo">Promotion policy</label>
+            <textarea class="editor-textarea" id="promo"></textarea>
+          </div>
+          <div class="editor-field">
+            <label for="loa">LOA policy</label>
+            <textarea class="editor-textarea" id="loa"></textarea>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Retirement</h2>
+          <div class="editor-field">
+            <label for="retirement-text">Retirement information</label>
+            <textarea class="editor-textarea" id="retirement-text"></textarea>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Equipment</h2>
+          <div class="editor-field">
+            <label for="weapon-note">Weapon note</label>
+            <textarea class="editor-textarea" id="weapon-note"></textarea>
+          </div>
+          <div class="editor-field">
+            <label>Uniforms</label>
+            <div class="editor-list" id="uniforms"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-uniform">
+              + Add uniform
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Loadout</label>
+            <div class="editor-list" id="loadout"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-loadout">
+              + Add item
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Default weapons</label>
+            <div class="editor-list" id="default-weapons"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-default-weapon">
+              + Add weapon
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Class 2 weapons</label>
+            <div class="editor-list" id="class2"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-class2">
+              + Add weapon
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Class 3 weapons</label>
+            <div class="editor-list" id="class3"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-class3">
+              + Add weapon
+            </button>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Vehicles</h2>
+          <div class="editor-field">
+            <label for="vehicle-high-command">High Command</label>
+            <textarea class="editor-textarea" id="vehicle-high-command"></textarea>
+          </div>
+          <div class="editor-field">
+            <label for="vehicle-misc">Miscellaneous vehicle</label>
+            <textarea class="editor-textarea" id="vehicle-misc"></textarea>
+          </div>
+          <div class="editor-field">
+            <label for="vehicle-undercover">Undercover</label>
+            <textarea class="editor-textarea" id="vehicle-undercover"></textarea>
+          </div>
+          <div class="editor-field">
+            <label>Low rank vehicles</label>
+            <div class="editor-list" id="vehicles-low"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-vehicle-low">
+              + Add vehicle
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Middle rank vehicles</label>
+            <div class="editor-list" id="vehicles-middle"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-vehicle-middle">
+              + Add vehicle
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>High rank vehicles</label>
+            <div class="editor-list" id="vehicles-high"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-vehicle-high">
+              + Add vehicle
+            </button>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Ranks</h2>
+          <p class="section-description">
+            Edit the existing rank lists without changing their categories.
+          </p>
+          <div class="editor-field">
+            <label>Command</label>
+            <div class="editor-list" id="ranks-command"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-rank-command">
+              + Add rank
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>High Command</label>
+            <div class="editor-list" id="ranks-high-command"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-rank-high-command">
+              + Add rank
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>High Rank</label>
+            <div class="editor-list" id="ranks-high-rank"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-rank-high-rank">
+              + Add rank
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Supervisor</label>
+            <div class="editor-list" id="ranks-supervisor"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-rank-supervisor">
+              + Add rank
+            </button>
+          </div>
+          <div class="editor-field">
+            <label>Low Rank</label>
+            <div class="editor-list" id="ranks-low-rank"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-rank-low-rank">
+              + Add rank
+            </button>
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Response Codes</h2>
+          <div class="editor-field">
+            <label for="response-code1">Code 1</label>
+            <input class="editor-input" id="response-code1">
+          </div>
+          <div class="editor-field">
+            <label for="response-code2">Code 2</label>
+            <input class="editor-input" id="response-code2">
+          </div>
+          <div class="editor-field">
+            <label for="response-code3">Code 3</label>
+            <input class="editor-input" id="response-code3">
+          </div>
+          <div class="editor-field">
+            <label for="response-code4">Code 4</label>
+            <input class="editor-input" id="response-code4">
+          </div>
+          <div class="editor-field">
+            <label for="response-code5">Code 5</label>
+            <input class="editor-input" id="response-code5">
+          </div>
+        </section>
+        <section class="card editor-section">
+          <h2>Command</h2>
+          <p class="section-description">
+            Edit the existing command entries.
+          </p>
+          <div class="editor-list" id="command-list"></div>
+          <button class="btn-secondary editor-add" type="button" id="add-command">
+            + Add command member
+          </button>
+        </section>
+        <section class="card editor-section">
+          <h2>10-Codes</h2>
+          <p class="section-description">
+            Each row contains a code and its description.
+          </p>
+          <div class="editor-list" id="ten-codes"></div>
+          <button class="btn-secondary editor-add" type="button" id="add-ten-code">
+            + Add 10-code
+          </button>
+        </section>
+        <div class="editor-actions">
+          <button class="btn-primary" type="submit" id="publish">
+            Publish changes
+          </button>
+          <button class="btn-secondary" type="button" id="cancel">
+            Cancel
+          </button>
+        </div>
+        <p id="validation" class="editor-status" aria-live="polite"></p>
+        <p id="status" class="editor-status" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+</div>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="content.js"></script>
+<script src="shell.js"></script>
+<script>
+SEUShell.init('edit');
+(async function () {
+  if (!SEUAuth.requireAuth()) return;
+  const form = document.getElementById('editor-form');
+  const denied = document.getElementById('denied');
+  const loading = document.getElementById('loading');
+  const validation = document.getElementById('validation');
+  const status = document.getElementById('status');
+  if (!SEUAuth.canEdit()) {
+    loading.hidden = true;
+    denied.hidden = false;
+    return;
+  }
+  let data;
+  try {
+    data = await SEUContent.load();
+  } catch (error) {
+    loading.textContent = 'Unable to load guide content.';
+    loading.className = 'callout danger';
+    return;
+  }
+  if (!data || typeof data !== 'object') {
+    loading.textContent = 'Guide content is invalid.';
+    loading.className = 'callout danger';
+    return;
+  }
+  loading.hidden = true;
+  form.hidden = false;
+  let dirty = false;
+  const $ = id => document.getElementById(id);
+  function markDirty() {
+    dirty = true;
+    validation.textContent = 'Unsaved changes';
+    validation.className = 'editor-status dirty';
+  }
+  function input(value, onChange) {
+    const el = document.createElement('input');
+    el.className = 'editor-input';
+    el.value = value == null ? '' : String(value);
+    el.addEventListener('input', function () {
+      onChange(el.value);
+      markDirty();
+    });
+    return el;
+  }
+  function textarea(value, onChange) {
+    const el = document.createElement('textarea');
+    el.className = 'editor-textarea';
+    el.value = value == null ? '' : String(value);
+    el.addEventListener('input', function () {
+      onChange(el.value);
+      markDirty();
+    });
+    return el;
+  }
+  function removeButton(callback) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'editor-remove';
+    button.textContent = 'Delete';
+    button.addEventListener('click', function () {
+      callback();
+      markDirty();
+    });
+    return button;
+  }
+  function renderStringList(container, array, rerender) {
+    container.innerHTML = '';
+    if (!array.length) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-list';
+      empty.textContent = 'No entries.';
+      container.appendChild(empty);
+      return;
+    }
+    array.forEach(function (value, index) {
+      const row = document.createElement('div');
+      row.className = 'editor-row';
+      const fields = document.createElement('div');
+      fields.className = 'editor-row-fields';
+      fields.appendChild(
+        input(value, function (newValue) {
+          array[index] = newValue;
+        })
+      );
+      row.appendChild(fields);
+      row.appendChild(
+        removeButton(function () {
+          array.splice(index, 1);
+          rerender();
+        })
+      );
+      container.appendChild(row);
+    });
+  }
+  function setupStringList(containerId, array, addButtonId) {
+    const container = $(containerId);
+    function rerender() {
+      renderStringList(container, array, rerender);
+    }
+    $(addButtonId).addEventListener('click', function () {
+      array.push('');
+      rerender();
+      markDirty();
+    });
+    rerender();
+  }
+  function setupTextareaList(containerId, array, addButtonId) {
+    const container = $(containerId);
+    function rerender() {
+      container.innerHTML = '';
+      if (!array.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-list';
+        empty.textContent = 'No entries.';
+        container.appendChild(empty);
         return;
       }
-
-      form.hidden = false;
-
-      const original = await SEUContent.load();
-      let content = JSON.parse(JSON.stringify(original));
-
-      function prettifyKey(key) {
-        return key
-          .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-          .replace(/[_-]+/g, ' ')
-          .replace(/\b\w/g, ch => ch.toUpperCase());
-      }
-
-      function ensureArrayItemValue(type) {
-        if (type === 'object') return {};
-        if (type === 'number') return 0;
-        if (type === 'boolean') return false;
-        return '';
-      }
-
-      function createInput(type, value) {
-        const input = document.createElement(type === 'textarea' ? 'textarea' : 'input');
-        if (type !== 'textarea') {
-          input.type = type;
-        }
-        if (type === 'number') {
-          input.value = Number(value || 0);
-        } else if (type === 'checkbox') {
-          input.checked = !!value;
-        } else {
-          input.value = value == null ? '' : String(value);
-        }
-        return input;
-      }
-
-      function setValueFromInput(target, input, type) {
-        if (type === 'checkbox') {
-          target = !!input.checked;
-        } else if (type === 'number') {
-          target = Number(input.value);
-        } else if (type === 'textarea') {
-          target = input.value;
-        } else {
-          target = input.value;
-        }
-        return target;
-      }
-
-      function renderPrimitiveField(path, labelText, currentValue, type) {
-        const field = document.createElement('label');
-        field.className = 'field';
-        const name = document.createElement('span');
-        name.className = 'field-label';
-        name.textContent = labelText;
-        const input = createInput(type, currentValue);
-        input.dataset.path = JSON.stringify(path);
-        input.addEventListener('input', function () {
-          const value = setValueFromInput(currentValue, input, type);
-          assignPath(content, path, value);
-          status.textContent = 'Unsaved changes';
-          status.className = 'editor-status dirty';
-        });
-        field.appendChild(name);
-        field.appendChild(input);
-        return field;
-      }
-
-      function renderArrayEditor(path, key, items) {
-        const block = document.createElement('div');
-        block.className = 'field-group field-array';
-
-        const header = document.createElement('div');
-        header.className = 'field-header';
-        const label = document.createElement('strong');
-        label.textContent = prettifyKey(key);
-        header.appendChild(label);
-
-        const list = document.createElement('div');
-        list.className = 'array-list';
-
-        if (!Array.isArray(items)) {
-          items = [];
-        }
-
-        items.forEach((item, index) => {
-          const row = document.createElement('div');
-          row.className = 'array-row';
-
-          if (Array.isArray(item) && item.length === 2 && (typeof item[0] === 'string' || typeof item[0] === 'number') && (typeof item[1] === 'string' || typeof item[1] === 'number')) {
-            const pair = document.createElement('div');
-            pair.className = 'pair-row';
-
-            const left = renderPrimitiveField(path.concat(index, 0), 'Code', item[0], 'text');
-            const right = renderPrimitiveField(path.concat(index, 1), 'Meaning', item[1], 'text');
-            pair.appendChild(left);
-            pair.appendChild(right);
-            row.appendChild(pair);
-          } else if (Array.isArray(item)) {
-            const nested = document.createElement('div');
-            nested.className = 'field-subgroup';
-            item.forEach((entry, subIndex) => {
-              const subField = renderField(path.concat(index, subIndex), String(subIndex), entry, 'item');
-              nested.appendChild(subField);
-            });
-            row.appendChild(nested);
-          } else if (item && typeof item === 'object' && !Array.isArray(item)) {
-            const nested = document.createElement('div');
-            nested.className = 'field-subgroup';
-            renderObjectFields(nested, item, path.concat(index));
-            row.appendChild(nested);
-          } else {
-            const primitive = renderPrimitiveField(path.concat(index), 'Item', item, typeof item === 'number' ? 'number' : 'text');
-            row.appendChild(primitive);
-          }
-
-          const del = document.createElement('button');
-          del.type = 'button';
-          del.className = 'btn small danger';
-          del.textContent = 'Delete';
-          del.addEventListener('click', function () {
-            const arr = getPath(content, path);
-            arr.splice(index, 1);
-            renderEditor();
-          });
-          row.appendChild(del);
-          list.appendChild(row);
-        });
-
-        const add = document.createElement('button');
-        add.type = 'button';
-        add.className = 'btn small';
-        add.textContent = 'Add item';
-        add.addEventListener('click', function () {
-          const arr = getPath(content, path);
-          let nextValue = '';
-          if (key === 'tenCodes') {
-            nextValue = ['', ''];
-          } else if (Array.isArray(items[0]) && items[0].length === 2) {
-            nextValue = ['', ''];
-          } else if (items.length && items[0] && typeof items[0] === 'object' && !Array.isArray(items[0])) {
-            nextValue = {};
-          } else if (items.length && typeof items[0] === 'number') {
-            nextValue = 0;
-          } else if (items.length && typeof items[0] === 'boolean') {
-            nextValue = false;
-          }
-          arr.push(nextValue);
-          renderEditor();
-        });
-
-        block.appendChild(header);
-        block.appendChild(list);
-        block.appendChild(add);
-        return block;
-      }
-
-      function renderObjectFields(container, obj, path) {
-        Object.keys(obj).forEach(function (key) {
-          const value = obj[key];
-          const field = renderField(path, key, value, key);
-          if (field) container.appendChild(field);
-        });
-      }
-
-      function renderField(path, key, value, labelKey) {
-        if (Array.isArray(value)) {
-          return renderArrayEditor(path, key, value);
-        }
-
-        if (value && typeof value === 'object') {
-          const block = document.createElement('div');
-          block.className = 'field-group';
-          const header = document.createElement('div');
-          header.className = 'field-header';
-          const label = document.createElement('strong');
-          label.textContent = prettifyKey(key);
-          header.appendChild(label);
-          block.appendChild(header);
-          const inner = document.createElement('div');
-          inner.className = 'field-subgroup';
-          renderObjectFields(inner, value, path.concat(key));
-          block.appendChild(inner);
-          return block;
-        }
-
-        return renderPrimitiveField(path.concat(key), prettifyKey(key), value, typeof value === 'number' ? 'number' : 'text');
-      }
-
-      function getPath(obj, path) {
-        let current = obj;
-        for (const segment of path) {
-          if (current == null) return undefined;
-          current = current[segment];
-        }
-        return current;
-      }
-
-      function assignPath(obj, path, value) {
-        let current = obj;
-        for (let i = 0; i < path.length - 1; i++) {
-          current = current[path[i]];
-        }
-        current[path[path.length - 1]] = value;
-      }
-
-      function renderEditor() {
-        root.innerHTML = '';
-        renderObjectFields(root, content, []);
-      }
-
-      renderEditor();
-
-      form.addEventListener('submit', async function (event) {
-        event.preventDefault();
-        status.textContent = 'Publishing changes…';
-        status.className = 'editor-status';
-
-        try {
-          const saved = JSON.parse(JSON.stringify(content));
-          const result = await SEUContent.publish(saved);
-          status.textContent = result && result.message ? result.message : 'Published successfully.';
-          status.className = 'editor-status ok';
-        } catch (error) {
-          status.textContent = error.message || 'Publish failed.';
-          status.className = 'editor-status error';
-        }
+      array.forEach(function (value, index) {
+        const row = document.createElement('div');
+        row.className = 'editor-row';
+        const fields = document.createElement('div');
+        fields.className = 'editor-row-fields';
+        fields.appendChild(
+          textarea(value, function (newValue) {
+            array[index] = newValue;
+          })
+        );
+        row.appendChild(fields);
+        row.appendChild(
+          removeButton(function () {
+            array.splice(index, 1);
+            rerender();
+          })
+        );
+        container.appendChild(row);
       });
-
-      document.getElementById('cancel').addEventListener('click', function () {
+    }
+    $(addButtonId).addEventListener('click', function () {
+      array.push('');
+      rerender();
+      markDirty();
+    });
+    rerender();
+  }
+  function setupCommandList() {
+    const container = $('command-list');
+    function rerender() {
+      container.innerHTML = '';
+      if (!data.command.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-list';
+        empty.textContent = 'No command members.';
+        container.appendChild(empty);
+        return;
+      }
+      data.command.forEach(function (member, index) {
+        const row = document.createElement('div');
+        row.className = 'editor-row';
+        const fields = document.createElement('div');
+        fields.className = 'editor-row-grid three';
+        const callsignField = document.createElement('div');
+        callsignField.innerHTML = '<label>Callsign</label>';
+        callsignField.appendChild(
+          input(member.callsign, function (value) {
+            member.callsign = value;
+          })
+        );
+        const usernameField = document.createElement('div');
+        usernameField.innerHTML = '<label>Username</label>';
+        usernameField.appendChild(
+          input(member.username, function (value) {
+            member.username = value;
+          })
+        );
+        const rankField = document.createElement('div');
+        rankField.innerHTML = '<label>Rank</label>';
+        rankField.appendChild(
+          input(member.rank, function (value) {
+            member.rank = value;
+          })
+        );
+        fields.appendChild(callsignField);
+        fields.appendChild(usernameField);
+        fields.appendChild(rankField);
+        row.appendChild(fields);
+        row.appendChild(
+          removeButton(function () {
+            data.command.splice(index, 1);
+            rerender();
+          })
+        );
+        container.appendChild(row);
+      });
+    }
+    $('add-command').addEventListener('click', function () {
+      data.command.push({
+        callsign: '',
+        username: '',
+        rank: ''
+      });
+      rerender();
+      markDirty();
+    });
+    rerender();
+  }
+  function setupTenCodes() {
+    const container = $('ten-codes');
+    function rerender() {
+      container.innerHTML = '';
+      if (!data.tenCodes.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-list';
+        empty.textContent = 'No 10-codes.';
+        container.appendChild(empty);
+        return;
+      }
+      data.tenCodes.forEach(function (entry, index) {
+        const row = document.createElement('div');
+        row.className = 'editor-row';
+        const fields = document.createElement('div');
+        fields.className = 'editor-row-grid';
+        const codeField = document.createElement('div');
+        codeField.innerHTML = '<label>Code</label>';
+        codeField.appendChild(
+          input(entry[0], function (value) {
+            entry[0] = value;
+          })
+        );
+        const descriptionField = document.createElement('div');
+        descriptionField.innerHTML = '<label>Description</label>';
+        descriptionField.appendChild(
+          input(entry[1], function (value) {
+            entry[1] = value;
+          })
+        );
+        fields.appendChild(codeField);
+        fields.appendChild(descriptionField);
+        row.appendChild(fields);
+        row.appendChild(
+          removeButton(function () {
+            data.tenCodes.splice(index, 1);
+            rerender();
+          })
+        );
+        container.appendChild(row);
+      });
+    }
+    $('add-ten-code').addEventListener('click', function () {
+      data.tenCodes.push(['', '']);
+      rerender();
+      markDirty();
+    });
+    rerender();
+  }
+  function setupRankList(containerId, array, buttonId) {
+    const container = $(containerId);
+    function rerender() {
+      renderStringList(container, array, rerender);
+    }
+    $(buttonId).addEventListener('click', function () {
+      array.push('');
+      rerender();
+      markDirty();
+    });
+    rerender();
+  }
+  function bindField(id, object, key, isTextarea) {
+    const element = $(id);
+    const setter = function (value) {
+      object[key] = value;
+    };
+    element.value = object[key] == null ? '' : String(object[key]);
+    element.addEventListener('input', function () {
+      setter(element.value);
+      markDirty();
+    });
+    if (isTextarea) {
+      element.rows = 4;
+    }
+  }
+  /*
+   * Home
+   */
+  bindField('home-title', data.home, 'title', false);
+  bindField('home-lead', data.home, 'lead', true);
+  bindField('home-warning', data.home, 'warning', true);
+  /*
+   * UOF
+   */
+  bindField('uof-intro', data.uof, 'intro', true);
+  setupTextareaList('uof-rules', data.uof.rules, 'add-uof-rule');
+  /*
+   * Policies
+   */
+  bindField('quota-intro', data.policies, 'quotaIntro', true);
+  bindField('senior-high', data.policies, 'seniorHigh', false);
+  bindField('high', data.policies, 'high', false);
+  bindField('middle', data.policies, 'middle', false);
+  bindField('low', data.policies, 'low', false);
+  bindField('missed', data.policies, 'missed', true);
+  bindField('promo', data.policies, 'promo', true);
+  bindField('loa', data.policies, 'loa', true);
+  /*
+   * Retirement
+   */
+  bindField('retirement-text', data.retirement, 'text', true);
+  /*
+   * Equipment
+   */
+  bindField('weapon-note', data.equipment, 'weaponNote', true);
+  setupStringList(
+    'uniforms',
+    data.equipment.uniforms,
+    'add-uniform'
+  );
+  setupStringList(
+    'loadout',
+    data.equipment.loadout,
+    'add-loadout'
+  );
+  setupStringList(
+    'default-weapons',
+    data.equipment.defaultWeapons,
+    'add-default-weapon'
+  );
+  setupStringList(
+    'class2',
+    data.equipment.class2,
+    'add-class2'
+  );
+  setupStringList(
+    'class3',
+    data.equipment.class3,
+    'add-class3'
+  );
+  /*
+   * Vehicles
+   */
+  bindField('vehicle-high-command', data.vehicles, 'highCommand', true);
+  bindField('vehicle-misc', data.vehicles, 'misc', true);
+  bindField('vehicle-undercover', data.vehicles, 'undercover', true);
+  setupStringList(
+    'vehicles-low',
+    data.vehicles.low,
+    'add-vehicle-low'
+  );
+  setupStringList(
+    'vehicles-middle',
+    data.vehicles.middle,
+    'add-vehicle-middle'
+  );
+  setupStringList(
+    'vehicles-high',
+    data.vehicles.high,
+    'add-vehicle-high'
+  );
+  /*
+   * Ranks
+   */
+  setupRankList(
+    'ranks-command',
+    data.ranks.command,
+    'add-rank-command'
+  );
+  setupRankList(
+    'ranks-high-command',
+    data.ranks.highCommand,
+    'add-rank-high-command'
+  );
+  setupRankList(
+    'ranks-high-rank',
+    data.ranks.highRank,
+    'add-rank-high-rank'
+  );
+  setupRankList(
+    'ranks-supervisor',
+    data.ranks.supervisor,
+    'add-rank-supervisor'
+  );
+  setupRankList(
+    'ranks-low-rank',
+    data.ranks.lowRank,
+    'add-rank-low-rank'
+  );
+  /*
+   * Response codes
+   */
+  bindField('response-code1', data.response, 'code1', false);
+  bindField('response-code2', data.response, 'code2', false);
+  bindField('response-code3', data.response, 'code3', false);
+  bindField('response-code4', data.response, 'code4', false);
+  bindField('response-code5', data.response, 'code5', false);
+  /*
+   * Command
+   */
+  setupCommandList();
+  /*
+   * 10-codes
+   */
+  setupTenCodes();
+  /*
+   * Cancel
+   */
+  $('cancel').addEventListener('click', function () {
+    if (!dirty || confirm('Discard unsaved changes?')) {
+      location.href = 'home.html';
+    }
+  });
+  /*
+   * Publish
+   */
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    validation.textContent = '';
+    const validationError = SEUContent.validate(data);
+    if (validationError) {
+      validation.textContent = validationError;
+      validation.className = 'editor-status err';
+      return;
+    }
+    const publishButton = $('publish');
+    publishButton.disabled = true;
+    status.textContent = 'Publishing…';
+    status.className = 'editor-status';
+    try {
+      /*
+       * Keep the existing content.js publishing mechanism.
+       * This does not change authentication or authorization.
+       */
+      SEUContent.saveDraft(data);
+      const result = await SEUContent.publish(data);
+      if (!result.ok) {
+        status.textContent =
+          result.error || 'Publishing failed.';
+        status.className = 'editor-status err';
+        publishButton.disabled = false;
+        return;
+      }
+      dirty = false;
+      status.textContent =
+        'Published successfully. Returning to the guide…';
+      status.className = 'editor-status ok';
+      setTimeout(function () {
         location.href = 'home.html';
-      });
-
-      if (window.SEUShell && typeof window.SEUShell.init === 'function') {
-        window.SEUShell.init('edit');
-      }
-    })();
-  </script>
+      }, 1200);
+    } catch (error) {
+      status.textContent =
+        error && error.message
+          ? error.message
+          : 'Publishing failed.';
+      status.className = 'editor-status err';
+      publishButton.disabled = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>
