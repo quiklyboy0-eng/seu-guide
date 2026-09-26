@@ -39,6 +39,19 @@ window.SEUShell = {
       }
     }
 
+    (function () {
+      var nav = document.querySelector(".nav");
+      if (nav && !document.querySelector('a[href="roster.html"]')) {
+        var link = document.createElement("a");
+        link.href = "roster.html";
+        link.className = "nav-link";
+        link.setAttribute("data-page", "roster");
+        link.textContent = "Personnel Roster";
+        if (page === "roster" || page === "edit-roster") link.classList.add("active");
+        nav.appendChild(link);
+      }
+    })();
+
     var nav2 = document.querySelector(".nav");
     if (nav2 && SEUAuth.canEdit() && !document.getElementById("edit-link")) {
       var elink = document.createElement("a");
