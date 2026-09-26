@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Roster · SEU Guide</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .er-actions { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0; position:sticky; bottom:0; padding:12px 0; background:linear-gradient(transparent, var(--bg) 30%); }
+    .er-actions button, .er-actions a {
+      padding:12px 16px; border-radius:8px; font-weight:600; cursor:pointer; border:1px solid var(--border); text-decoration:none;
+    }
+    .btn-save { background:var(--gold); color:#10151c; border:none; }
+    .btn-add { background:var(--surface); color:var(--text); }
+    .btn-cancel { background:transparent; color:var(--muted); }
+    .er-row {
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:8px;
+      padding:12px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px; background:var(--surface);
+    }
+    .er-row label { display:block; font-size:0.7rem; color:var(--muted); margin-bottom:4px; font-weight:600; }
+    .er-row input {
+      width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border);
+      background:#070b12; color:var(--text); font:inherit;
+    }
+    .er-row .del { align-self:end; background:#241014; color:#ffb5b5; border:1px solid #6b3030; }
+    .er-status { margin-top:10px; font-weight:600; }
+    .er-status.ok { color:var(--green); }
+    .er-status.err { color:var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
+      </div>
+      <nav class="nav">
+        <a href="roster.html" class="nav-link">← Back to roster</a>
+        <a href="edit-roster.html" class="nav-link active">Edit roster</a>
+      </nav>
+      <div class="user-box" id="user-box"></div>
+      <button type="button" class="logout" id="logout">Sign out</button>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menu-toggle">☰</button>
+        <h2>Edit roster</h2>
+      </header>
+      <div class="content">
+        <div class="callout danger" id="denied" hidden>Only editors can change the personnel roster.</div>
+        <div id="editor" hidden>
+          <p class="muted">Edit entries below. Save publishes roster.json for everyone when a GitHub token is available in your session.</p>
+          <div class="er-actions">
+            <button type="button" class="btn-add" id="add-row">+ Add entry</button>
+            <button type="button" class="btn-save" id="save">Save roster</button>
+            <a class="btn-cancel" href="roster.html" id="cancel">Cancel</a>
+          </div>
+          <div id="rows"></div>
+          <div class="er-actions">
+            <button type="button" class="btn-save" id="save2">Save roster</button>
+            <a class="btn-cancel" href="roster.html">Cancel</a>
+          </div>
+          <p class="er-status" id="status"></p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="content.js"></script>
+  <script src="shell.js"></script>
+  <script>
+    SEUShell.init('edit-roster');
+    (async function () {
+      if (!SEUAuth.requireAuth()) return;
+      if (!SEUAuth.canEdit()) {
+        document.getElementById('denied').hidden = false;
+        return;
+      }
+      document.getElementById('editor').hidden = false;
+      var res = await fetch('roster.json?t=' + Date.now());
+      var data = await res.json();
+      var list = (data.personnel || []).slice();
+      var rowsEl = document.getElementById('rows');
+      var status = document.getElementById('status');
+
+      function field(row, key, label) {
+        var wrap = document.createElement('div');
+        wrap.innerHTML = '<label>' + label + '</label>';
+        var input = document.createElement('input');
+        input.value = row[key] || '';
+        input.addEventListener('input', function () { row[key] = input.value; });
+        wrap.appendChild(input);
+        return wrap;
+      }
+
+      function render() {
+        rowsEl.innerHTML = '';
+        list.forEach(function (row, index) {
+          var el = document.createElement('div');
+          el.className = 'er-row';
+          ['section','rank','callsign','discord','roblox','discordId','status','divisions'].forEach(function (k) {
+            el.appendChild(field(row, k, k));
+          });
+          var del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'del';
+          del.textContent = 'Delete';
+          del.addEventListener('click', function () {
+            list.splice(index, 1);
+            render();
+          });
+          el.appendChild(del);
+          rowsEl.appendChild(el);
+        });
+      }
+
+      document.getElementById('add-row').addEventListener('click', function () {
+        list.unshift({
+          section: 'Command', rank: '', callsign: '', discord: '', roblox: '',
+          discordId: '', extras: '', status: 'Active Callsign', awards: '', divisions: ''
+        });
+        render();
+      });
+
+      async function save() {
+        status.textContent = 'Saving…';
+        status.className = 'er-status';
+        var payload = {
+          title: data.title || 'Personnel Roster',
+          subtitle: data.subtitle || 'Speed Enforcement Unit',
+          personnel: list
+        };
+        try { localStorage.setItem('seu_roster_override', JSON.stringify(payload)); } catch (e) {}
+
+        var cfg = window.SEU_CONFIG || {};
+        var token = (window.SEUContent && SEUContent.getToken && SEUContent.getToken()) || cfg.githubToken || sessionStorage.getItem('seu_github_token') || '';
+        if (!token) {
+          status.textContent = 'Saved in this browser only.';
+          status.className = 'er-status err';
+          setTimeout(function () {
+            location.replace('roster.html?flash=' + encodeURIComponent('Saved successfully (this browser)'));
+          }, 900);
+          return;
+        }
+        var path = 'roster.json';
+        var api = 'https://api.github.com/repos/' + (cfg.githubRepo || 'quiklyboy0-eng/seu-guide') + '/contents/' + path;
+        var sha;
+        try {
+          var getRes = await fetch(api, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
+          if (getRes.ok) sha = (await getRes.json()).sha;
+        } catch (e) {}
+        var body = {
+          message: 'Update personnel roster via web editor',
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))),
+          branch: 'main'
+        };
+        if (sha) body.sha = sha;
+        var putRes = await fetch(api, {
+          method: 'PUT',
+          headers: {
+            Authorization: 'Bearer ' + token,
+            Accept: 'application/vnd.github+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        if (!putRes.ok) {
+          var err = await putRes.json().catch(function () { return {}; });
+          status.textContent = err.message || 'Publish failed';
+          status.className = 'er-status err';
+          return;
+        }
+        location.replace('roster.html?flash=' + encodeURIComponent('Saved successfully'));
+      }
+
+      document.getElementById('save').addEventListener('click', save);
+      document.getElementById('save2').addEventListener('click', save);
+      document.getElementById('cancel').addEventListener('click', function (e) {
+        e.preventDefault();
+        location.replace('roster.html?flash=' + encodeURIComponent('Canceled'));
+      });
+
+      try {
+        var ov = JSON.parse(localStorage.getItem('seu_roster_override') || 'null');
+        if (ov && ov.personnel) list = ov.personnel.slice();
+      } catch (e) {}
+      render();
+    })();
+  </script>
+</body>
+</html>
