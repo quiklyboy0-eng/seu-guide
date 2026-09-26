@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>High Rank Handbook · SEU Guide</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
+      </div>
+      <nav class="nav">
+        <a href="home.html" class="nav-link" data-page="home">Home</a>
+        <a href="ranks.html" class="nav-link" data-page="ranks">Rank Structure</a>
+        <a href="equipment.html" class="nav-link" data-page="equipment">Uniform &amp; Weapons</a>
+        <a href="vehicles.html" class="nav-link" data-page="vehicles">Vehicles</a>
+        <a href="uof.html" class="nav-link" data-page="uof">Use of Force</a>
+        <a href="policies.html" class="nav-link" data-page="policies">Quota &amp; LOA</a>
+        <a href="retirement.html" class="nav-link" data-page="retirement">Retirement</a>
+        <a href="codes.html" class="nav-link" data-page="codes">10-Codes</a>
+        <a href="response.html" class="nav-link" data-page="response">Response Codes</a>
+        <a href="command.html" class="nav-link" data-page="command">Command</a>
+        <a href="highrank.html" class="nav-link" data-page="highrank" id="nav-highrank">High Rank Guide</a>
+      </nav>
+      <div class="user-box" id="user-box"></div>
+      <button type="button" class="logout" id="logout">Sign out</button>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+        <h2>High Rank Handbook</h2>
+      </header>
+      <div class="content">
+        <section class="section">
+          <div class="hero">
+            <p class="eyebrow">California Highway Patrol · SEU</p>
+            <h1>High Rank Handbook</h1>
+            <p class="lead">Everything you need to know when handling Infractions, Tickets, and related procedures.</p>
+          </div>
+          <div class="callout danger">
+            <strong>Warning</strong>
+            LEAKING THIS HANDBOOK WILL RESULT IN AN IMMEDIATE BLACKLIST. This punishment guide must be followed to its exact wording. Anyone not following the punishment list will be infracted.
+          </div>
+
+          <h2>1. SEU Punishments List</h2>
+          <p>All punishments must be issued exactly as written below. Deviation is itself an infraction.</p>
+
+          <div class="card" style="margin-bottom:16px">
+            <h3>Warnings</h3>
+            <ul class="clean-list">
+              <li>FRP (Fail RP)</li>
+              <li>RDM (Random Deathmatch)</li>
+              <li>VDM (Vehicle Deathmatch)</li>
+              <li>Vehicle regulation violations (one per violation)</li>
+              <li>Uniform regulation violations (one per violation)</li>
+              <li>Shift farming</li>
+              <li>Unrealistic avatar</li>
+              <li>Failure to follow the chain of command</li>
+              <li>Minor Lack of SPaG</li>
+              <li>Minor misuse of radio or within tickets</li>
+            </ul>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <h3>Strike</h3>
+            <ul class="clean-list">
+              <li>Ignoring officer instructions during active operations — Can lead to a demotion depending on severity</li>
+              <li>Shift farming — Over 3+ hours</li>
+              <li>Major Lack of SPaG</li>
+              <li>Major misuse of radio or within tickets</li>
+              <li>UoF violations — Strike → Suspension → Termination + Blacklist depending on severity</li>
+              <li>3 Warnings → 1 Strike</li>
+            </ul>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <h3>Suspension</h3>
+            <ul class="clean-list">
+              <li>Reaching maximum warnings and strikes</li>
+              <li>UoF Violation — Second offence</li>
+              <li>Mishandling a scene</li>
+              <li>Abuse of Power (may also result in demotion depending on severity)</li>
+              <li>Endangering the civilian (e.g. running in and shooting at a hostage taker while the suspect is actively aiming their weapon)</li>
+              <li>3 Strikes = 3-day Suspension</li>
+            </ul>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <h3>Demotions</h3>
+            <ul class="clean-list">
+              <li>Lying to HR during investigations or questioning → Infraction</li>
+              <li>Bias while infracting → Demotion from IA or any rank above CPT</li>
+              <li>Abuse of authority → Minimum demotion (severity-based)</li>
+              <li>Found unfit for the position (Can be issued to SGT+ by ACOM+)</li>
+              <li>1 Suspension + 3 Strikes = Demotion</li>
+            </ul>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <h3>Termination</h3>
+            <ul class="clean-list">
+              <li>Murder → Termination + Department Blacklist</li>
+              <li>Corruption → Termination + Blacklist</li>
+              <li>Leaving the server during an active investigation → Termination</li>
+              <li>Major harassment or bullying → Termination + Blacklist</li>
+              <li>Exploiting bugs / exploiting RP mechanics → Termination + Blacklist</li>
+              <li>Leaving without retirement → Termination</li>
+              <li>Repeated violations of SEU rules → Termination</li>
+              <li>Demotion + 3 Strikes = Termination</li>
+            </ul>
+          </div>
+
+          <h2>2. Ticket Handling</h2>
+          <p>Use the correct status markers on every ticket. Failure to follow these rules may result in an infraction.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Status</th><th>Format</th><th>Rules</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Claimed</td><td>Your Username</td><td>Only the handler may speak unless given PTS.</td></tr>
+                <tr><td>User needed</td><td>User needed Username</td><td>Mark with an orange circle + username so the correct person handles it.</td></tr>
+                <tr><td>Report</td><td>User being reported username</td><td>Only when reporting a user who can see tickets — so they can be removed from the ticket.</td></tr>
+                <tr><td>Office of Commanders</td><td>Required</td><td>Only the SEU Commander may handle. No one may speak without PTS.</td></tr>
+                <tr><td>Do Not Close</td><td>—</td><td>Ticket must stay open until further notice.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Follow these markers exactly. Non-compliance can result in an infraction.</p>
+
+          <h2>3. Shift Management Information</h2>
+          <p><em>(This can be appealed, but the appeal must be strong.)</em></p>
+          <p>All Speed Enforcement Officers must have their shift enabled while patrolling. This ensures fair shift time is recorded at the end of each week and prevents officers from accumulating time while offline or out of the server.</p>
+          <p>If you observe an officer with shift enabled but not in-game:</p>
+          <ul class="clean-list">
+            <li>Take a screenshot showing date and time.</li>
+            <li>Take a screenshot of their shift status.</li>
+            <li>Write a report in the “Infraction Logs” channel.</li>
+            <li>Issue the infraction before assigning any related role.</li>
+          </ul>
+          <h3>Managing Shift Time</h3>
+          <p>To remove, add, or manage someone’s shift time:</p>
+          <ol class="rules">
+            <li>Type <code>/shift admin [user] [shift-type]</code></li>
+            <li>Click Shift Actions → View Shift List</li>
+            <li>Copy the shift ID</li>
+            <li>Return to Shift Actions → Modify Shift</li>
+            <li>Paste the ID and add or remove time as needed</li>
+          </ol>
+          <p>From Shift Actions you can also delete a specific shift or clear all shifts for a user.</p>
+          <div class="callout"><strong>Infraction:</strong> Shift Farming = Warning. If the officer’s accumulated time exceeds 3 hours → Strike.</div>
+
+          <h2>4. Retirement and Reinstatement Policy</h2>
+          <p>When an officer retires through a ticket, complete the following before finalizing:</p>
+          <ul class="clean-list">
+            <li>Take a screenshot of their current roles.</li>
+            <li>Document the retirement in the #retirement-logs channel using the pinned format.</li>
+            <li>Paste the policy message below into the ticket so the officer understands the terms.</li>
+          </ul>
+          <h3>Required Policy Message</h3>
+          <div class="callout">
+            “Before you retire, you need to understand the retirement policy to ensure you are sure about your decision. When retiring, you have up to two months to reinstate. When reinstating, you will be demoted by one rank, and if you reinstate after one month, you will need to go through a re-training. Also keep in mind when retiring, you will not regain some certifications when reinstating if you are not the required rank for the certification.”
+          </div>
+
+          <h2>5. Deployments and Cooldowns</h2>
+          <p>The cooldown for a deployment is <strong>2 hours</strong>.</p>
+          <p>This cooldown may only be broken if requested by Supervisors from the LANCRP Staff Team. Failure to respect the cooldown will result in an infraction.</p>
+
+          <h2>6. Commands</h2>
+          <p>All commands below are active and functional. You must use the pipe character <code>|</code> to separate fields. Omitting the pipe will cause the entire argument to be treated as a single field.</p>
+          <h3>Command Syntax</h3>
+          <ul class="clean-list">
+            <li><code>!infract (@user) | (punishment) | (reason)</code></li>
+            <li><code>!retire (@user) | (message)</code></li>
+            <li><code>!deploy (@user) | (@user)</code></li>
+          </ul>
+          <h3>Examples</h3>
+          <div class="card" style="margin-bottom:12px">
+            <p><code>!infract @xnotzjess | Warning | FRP</code></p>
+            <p class="muted">Issue a warning for FRP</p>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <p><code>!retire @xnotzjess | Users rank of retirement | User wished to retire</code></p>
+            <p class="muted">If no custom message is provided, use “User wished to retire”</p>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <p><code>!deploy @xnotzjess | @xnotzjess | (Deployment type)</code></p>
+            <p class="muted">If no co-host, put N/A or leave blank</p>
+          </div>
+          <div class="callout">
+            <strong>Deployment command note:</strong> You must hold the rank of @Senior high rank team (or higher) to use !deploy. The second @user is for a co-host. The host/co-host fields are automatically filled by the embed — you do not need to type them.
+          </div>
+
+          <p style="margin-top:24px">That is the end of the High Rank Handbook. If you have any questions or inquiries, do not hesitate to open a ticket and ask. You are required to follow this handbook to the letter. Thank you for reading.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="shell.js"></script>
+  <script>
+    SEUShell.init("highrank");
+    if (!SEUAuth.canAccessHighRank()) {
+      location.replace("home.html?flash=" + encodeURIComponent("You do not have access to the High Rank Guide."));
+    }
+  </script>
+</body>
+</html>
