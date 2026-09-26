@@ -1,1 +1,160 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Edit Guide · SEU</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.editor-page { max-width: 1100px; }
+.editor-section { margin-bottom: 18px; }
+.editor-section h2 { margin: 0 0 6px; font-size: 20px; }
+.editor-section > .section-description { margin: 0 0 16px; color: var(--muted, #8d98aa); }
+.editor-field { margin-bottom: 14px; }
+.editor-field label, .editor-row label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #cfd7e4; }
+.editor-input, .editor-textarea { width: 100%; box-sizing: border-box; padding: 11px 12px; border: 1px solid var(--border, #263044); border-radius: 9px; background: #070b12; color: #e8edf5; font: inherit; outline: none; }
+.editor-input:focus, .editor-textarea:focus { border-color: #596b89; }
+.editor-textarea { min-height: 105px; resize: vertical; }
+.editor-list { display: flex; flex-direction: column; gap: 10px; }
+.editor-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--border, #263044); border-radius: 10px; background: rgba(255,255,255,.02); }
+.editor-row-fields { min-width: 0; }
+.editor-row-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.editor-row-grid.three { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.editor-remove { white-space: nowrap; border: 1px solid #6b3030; background: #241014; color: #ffb5b5; border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+.editor-remove:hover { background: #32151a; }
+.editor-add { margin-top: 10px; }
+.editor-actions { display: flex; gap: 10px; flex-wrap: wrap; position: sticky; bottom: 0; padding: 14px 0; background: linear-gradient(transparent,#080c13 25%); }
+.editor-status { margin-top: 12px; }
+.editor-status.ok { color: #7ee2a8; }
+.editor-status.err { color: #ff8e8e; }
+.editor-status.dirty { color: #e7c56b; }
+.empty-list { padding: 14px; border: 1px dashed var(--border, #263044); border-radius: 9px; color: var(--muted, #8d98aa); }
+.btn-primary { background: #d6ad45; color: #10151c; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.btn-secondary { background: transparent; color: #cfd7e4; border: 1px solid #263044; padding: 12px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+@media (max-width: 700px) {
+  .editor-row, .editor-row-grid, .editor-row-grid.three { grid-template-columns: 1fr; }
+  .editor-remove { width: 100%; }
+  .editor-actions { flex-direction: column; }
+  .editor-actions button { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">SEU</span>
+      <div>
+        <strong>Speed Enforcement</strong>
+        <span>Unit Guide</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="home.html" class="nav-link">← Back to guide</a>
+      <a href="edit.html" class="nav-link active">Edit guide</a>
+    </nav>
+    <div class="user-box" id="user-box"></div>
+    <button class="logout" id="logout">Sign out</button>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <h2>Content editor</h2>
+    </header>
+    <div class="content editor-page">
+      <div class="hero">
+        <p class="eyebrow">Authorized editor</p>
+        <h1>Guide content control</h1>
+        <p class="lead">Edit the guide using the fields below. No JSON or code is required.</p>
+      </div>
+      <div id="denied" class="callout danger" hidden>You do not have permission to edit the guide.</div>
+      <div id="loading" class="callout">Loading guide content…</div>
+      <form id="editor-form" hidden>
+        <section class="card editor-section">
+          <h2>Home</h2>
+          <div class="editor-field"><label for="home-title">Title</label><input class="editor-input" id="home-title"></div>
+          <div class="editor-field"><label for="home-lead">Lead</label><textarea class="editor-textarea" id="home-lead"></textarea></div>
+          <div class="editor-field"><label for="home-warning">Warning</label><textarea class="editor-textarea" id="home-warning"></textarea></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Use of Force</h2>
+          <div class="editor-field"><label for="uof-intro">Introduction</label><textarea class="editor-textarea" id="uof-intro"></textarea></div>
+          <div class="editor-field"><label>Rules</label><div class="editor-list" id="uof-rules"></div>
+            <button class="btn-secondary editor-add" type="button" id="add-uof-rule">+ Add rule</button></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Quota, Promotion & LOA</h2>
+          <div class="editor-field"><label for="quota-intro">Quota introduction</label><textarea class="editor-textarea" id="quota-intro"></textarea></div>
+          <div class="editor-field"><label for="senior-high">Senior High quota</label><input class="editor-input" id="senior-high"></div>
+          <div class="editor-field"><label for="high">High quota</label><input class="editor-input" id="high"></div>
+          <div class="editor-field"><label for="middle">Middle quota</label><input class="editor-input" id="middle"></div>
+          <div class="editor-field"><label for="low">Low quota</label><input class="editor-input" id="low"></div>
+          <div class="editor-field"><label for="missed">Missed quota policy</label><textarea class="editor-textarea" id="missed"></textarea></div>
+          <div class="editor-field"><label for="promo">Promotion policy</label><textarea class="editor-textarea" id="promo"></textarea></div>
+          <div class="editor-field"><label for="loa">LOA policy</label><textarea class="editor-textarea" id="loa"></textarea></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Retirement</h2>
+          <div class="editor-field"><label for="retirement-text">Retirement information</label><textarea class="editor-textarea" id="retirement-text"></textarea></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Equipment</h2>
+          <div class="editor-field"><label for="weapon-note">Weapon note</label><textarea class="editor-textarea" id="weapon-note"></textarea></div>
+          <div class="editor-field"><label>Uniforms</label><div class="editor-list" id="uniforms"></div><button class="btn-secondary editor-add" type="button" id="add-uniform">+ Add uniform</button></div>
+          <div class="editor-field"><label>Loadout</label><div class="editor-list" id="loadout"></div><button class="btn-secondary editor-add" type="button" id="add-loadout">+ Add item</button></div>
+          <div class="editor-field"><label>Default weapons</label><div class="editor-list" id="default-weapons"></div><button class="btn-secondary editor-add" type="button" id="add-default-weapon">+ Add weapon</button></div>
+          <div class="editor-field"><label>Class 2 weapons</label><div class="editor-list" id="class2"></div><button class="btn-secondary editor-add" type="button" id="add-class2">+ Add weapon</button></div>
+          <div class="editor-field"><label>Class 3 weapons</label><div class="editor-list" id="class3"></div><button class="btn-secondary editor-add" type="button" id="add-class3">+ Add weapon</button></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Vehicles</h2>
+          <div class="editor-field"><label for="vehicle-high-command">High Command</label><textarea class="editor-textarea" id="vehicle-high-command"></textarea></div>
+          <div class="editor-field"><label for="vehicle-misc">Miscellaneous vehicle</label><textarea class="editor-textarea" id="vehicle-misc"></textarea></div>
+          <div class="editor-field"><label for="vehicle-undercover">Undercover</label><textarea class="editor-textarea" id="vehicle-undercover"></textarea></div>
+          <div class="editor-field"><label>Low rank vehicles</label><div class="editor-list" id="vehicles-low"></div><button class="btn-secondary editor-add" type="button" id="add-vehicle-low">+ Add vehicle</button></div>
+          <div class="editor-field"><label>Middle rank vehicles</label><div class="editor-list" id="vehicles-middle"></div><button class="btn-secondary editor-add" type="button" id="add-vehicle-middle">+ Add vehicle</button></div>
+          <div class="editor-field"><label>High rank vehicles</label><div class="editor-list" id="vehicles-high"></div><button class="btn-secondary editor-add" type="button" id="add-vehicle-high">+ Add vehicle</button></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Ranks</h2>
+          <div class="editor-field"><label>Command</label><div class="editor-list" id="ranks-command"></div><button class="btn-secondary editor-add" type="button" id="add-rank-command">+ Add rank</button></div>
+          <div class="editor-field"><label>High Command</label><div class="editor-list" id="ranks-high-command"></div><button class="btn-secondary editor-add" type="button" id="add-rank-high-command">+ Add rank</button></div>
+          <div class="editor-field"><label>High Rank</label><div class="editor-list" id="ranks-high-rank"></div><button class="btn-secondary editor-add" type="button" id="add-rank-high-rank">+ Add rank</button></div>
+          <div class="editor-field"><label>Supervisor</label><div class="editor-list" id="ranks-supervisor"></div><button class="btn-secondary editor-add" type="button" id="add-rank-supervisor">+ Add rank</button></div>
+          <div class="editor-field"><label>Low Rank</label><div class="editor-list" id="ranks-low-rank"></div><button class="btn-secondary editor-add" type="button" id="add-rank-low-rank">+ Add rank</button></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Response Codes</h2>
+          <div class="editor-field"><label for="response-code1">Code 1</label><input class="editor-input" id="response-code1"></div>
+          <div class="editor-field"><label for="response-code2">Code 2</label><input class="editor-input" id="response-code2"></div>
+          <div class="editor-field"><label for="response-code3">Code 3</label><input class="editor-input" id="response-code3"></div>
+          <div class="editor-field"><label for="response-code4">Code 4</label><input class="editor-input" id="response-code4"></div>
+          <div class="editor-field"><label for="response-code5">Code 5</label><input class="editor-input" id="response-code5"></div>
+        </section>
+        <section class="card editor-section">
+          <h2>Command</h2>
+          <div class="editor-list" id="command-list"></div>
+          <button class="btn-secondary editor-add" type="button" id="add-command">+ Add command member</button>
+        </section>
+        <section class="card editor-section">
+          <h2>10-Codes</h2>
+          <div class="editor-list" id="ten-codes"></div>
+          <button class="btn-secondary editor-add" type="button" id="add-ten-code">+ Add 10-code</button>
+        </section>
+        <div class="editor-actions">
+          <button class="btn-primary" type="submit" id="publish">Publish changes</button>
+          <button class="btn-secondary" type="button" id="cancel">Cancel</button>
+        </div>
+        <p id="validation" class="editor-status" aria-live="polite"></p>
+        <p id="status" class="editor-status" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+</div>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="content.js"></script>
+<script src="shell.js"></script>
+<script src="editor-self.js"></script>
+</body>
+</html>
