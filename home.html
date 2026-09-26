@@ -3,84 +3,254 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home · SEU Guide</title>
+  <title>Guides · SEU Guide</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app" id="app">
-
-<aside class="sidebar">
-  <div class="brand">
-    <span class="brand-mark">SEU</span>
-    <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
-  </div>
-  <nav class="nav">
-    <a href="home.html" class="nav-link" data-page="home">Home</a>
-    <a href="ranks.html" class="nav-link" data-page="ranks">Rank Structure</a>
-    <a href="equipment.html" class="nav-link" data-page="equipment">Uniform &amp; Weapons</a>
-    <a href="vehicles.html" class="nav-link" data-page="vehicles">Vehicles</a>
-    <a href="uof.html" class="nav-link" data-page="uof">Use of Force</a>
-    <a href="policies.html" class="nav-link" data-page="policies">Quota &amp; LOA</a>
-    <a href="retirement.html" class="nav-link" data-page="retirement">Retirement</a>
-    <a href="codes.html" class="nav-link" data-page="codes">10-Codes</a>
-    <a href="response.html" class="nav-link" data-page="response">Response Codes</a>
-    <a href="command.html" class="nav-link" data-page="command">Command</a>
-  </nav>
-  <div class="user-box" id="user-box"></div>
-  <button type="button" class="logout" id="logout">Sign out</button>
-</aside>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
+      </div>
+      <nav class="nav">
+        <a href="home.html" class="nav-link active" data-page="home">Guides</a>
+        <a href="ranks.html" class="nav-link" data-page="ranks">Rank Structure</a>
+        <a href="equipment.html" class="nav-link" data-page="equipment">Uniform &amp; Weapons</a>
+        <a href="vehicles.html" class="nav-link" data-page="vehicles">Vehicles</a>
+        <a href="uof.html" class="nav-link" data-page="uof">Use of Force</a>
+        <a href="policies.html" class="nav-link" data-page="policies">Quota &amp; LOA</a>
+        <a href="retirement.html" class="nav-link" data-page="retirement">Retirement</a>
+        <a href="codes.html" class="nav-link" data-page="codes">10-Codes</a>
+        <a href="response.html" class="nav-link" data-page="response">Response Codes</a>
+        <a href="command.html" class="nav-link" data-page="command">Command</a>
+      </nav>
+      <div class="user-box" id="user-box"></div>
+      <button type="button" class="logout" id="logout">Sign out</button>
+    </aside>
 
     <main class="main">
       <header class="topbar">
         <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
-        <h2>Home</h2>
+        <h2>Guides</h2>
       </header>
-      <div class="content">
+      <div class="content guides-hub">
+        <div class="guides-header">
+          <h1>Guides</h1>
+          <p class="guides-meta" id="guides-meta">Official SEU unit guides</p>
+        </div>
 
-        <section class="section">
-          <div class="hero">
-            <p class="eyebrow">California Highway Patrol</p>
-            <h1>Speed Enforcement Unit</h1>
-            <p class="lead">Official unit guide for authorized SEU members. Follow all policies exactly as written.</p>
-          </div>
-          <div class="card-grid">
-            <div class="card"><h3>Commander</h3><p>xnotzjess · SE-001</p></div>
-            <div class="card"><h3>Deputy Commander</h3><p>Harry29hb213 · SE-002</p></div>
-            <div class="card"><h3>Assistant Commanders</h3><p>Omer · SE-003<br />Ykald · SE-004</p></div>
-          </div>
-          <div class="callout danger">
-            <strong>Warning</strong>
-            Leaking this guide will result in an immediate blacklist.
-          </div>
-          <div class="card-grid" style="margin-top:24px">
-            <a class="card link-card" href="ranks.html"><h3>Rank Structure</h3><p>Command through low ranks</p></a>
-            <a class="card link-card" href="equipment.html"><h3>Equipment</h3><p>Uniforms &amp; weapons</p></a>
-            <a class="card link-card" href="vehicles.html"><h3>Vehicles</h3><p>Fleet &amp; lighting</p></a>
-            <a class="card link-card" href="codes.html"><h3>10-Codes</h3><p>RTO reference</p></a>
-          </div>
-        </section>
+        <div class="guides-list" id="guides-list">
+          <!-- filled by JS -->
+        </div>
 
+        <div class="callout danger" style="margin-top:28px">
+          <strong>Warning</strong>
+          Leaking this guide will result in an immediate blacklist.
+        </div>
       </div>
     </main>
   </div>
   <script src="config.js"></script>
   <script src="auth.js"></script>
-  <script src="content.js"></script>
   <script src="shell.js"></script>
-  <script>SEUShell.init("home");</script>
   <script>
-    (async function () {
-      var data = await SEUContent.load();
-      var h = data.home || {};
-      var t = document.querySelector(".hero h1");
-      var lead = document.querySelector(".hero .lead");
-      var warn = document.querySelector(".callout.danger");
-      if (t && h.title) t.textContent = h.title;
-      if (lead && h.lead) lead.textContent = h.lead;
-      if (warn && h.warning) warn.innerHTML = "<strong>Warning</strong> " + h.warning;
+    SEUShell.init("home");
+
+    (function () {
+      var guides = [
+        {
+          id: "ranks",
+          href: "ranks.html",
+          title: "Rank Structure",
+          desc: "Command through low ranks — callsigns, hierarchy and promotion path.",
+          icon: "badge",
+          pages: 1
+        },
+        {
+          id: "equipment",
+          href: "equipment.html",
+          title: "Uniform & Weapons",
+          desc: "Approved uniforms, loadouts and weapon classes for SEU members.",
+          icon: "shield",
+          pages: 1
+        },
+        {
+          id: "vehicles",
+          href: "vehicles.html",
+          title: "Vehicles",
+          desc: "Fleet access by rank, lighting rules and vehicle standards.",
+          icon: "car",
+          pages: 1
+        },
+        {
+          id: "uof",
+          href: "uof.html",
+          title: "Use of Force",
+          desc: "Force continuum, escalation rules and when force is authorized.",
+          icon: "gavel",
+          pages: 1
+        },
+        {
+          id: "policies",
+          href: "policies.html",
+          title: "Quota & LOA",
+          desc: "Monthly quota, leave of absence rules and activity standards.",
+          icon: "clipboard",
+          pages: 1
+        },
+        {
+          id: "retirement",
+          href: "retirement.html",
+          title: "Retirement",
+          desc: "How to retire cleanly and what happens to callsigns and ranks.",
+          icon: "flag",
+          pages: 1
+        },
+        {
+          id: "codes",
+          href: "codes.html",
+          title: "10-Codes",
+          desc: "RTO 10-codes reference for radio traffic.",
+          icon: "radio",
+          pages: 1
+        },
+        {
+          id: "response",
+          href: "response.html",
+          title: "Response Codes",
+          desc: "Priority and response codes used on duty.",
+          icon: "bolt",
+          pages: 1
+        },
+        {
+          id: "command",
+          href: "command.html",
+          title: "Command",
+          desc: "Command signatures and unit leadership.",
+          icon: "star",
+          pages: 1
+        },
+        {
+          id: "roster",
+          href: "roster.html",
+          title: "Personnel Roster",
+          desc: "Official unit roster — callsigns, ranks and personnel records.",
+          icon: "users",
+          pages: 1
+        },
+        {
+          id: "highrank",
+          href: "highrank.html",
+          title: "High Rank Guide",
+          desc: "Promotions, quota enforcement and everything High Rank is responsible for.",
+          icon: "wrench",
+          pages: 1,
+          gated: "highrank"
+        }
+      ];
+
+      var ICONS = {
+        badge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M15 8h3M15 12h3M7 16h10"/></svg>',
+        shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg>',
+        car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 16l1.5-6h11L19 16M7 16v2M17 16v2M4 16h16"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/></svg>',
+        gavel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 4l6 6M4 20l6-2 8-8-4-4-8 8-2 6zM12 8l4 4"/></svg>',
+        clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h4"/></svg>',
+        flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 21V4m0 0h10l-2 4 2 4H5"/></svg>',
+        radio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5m5 6h.01M9 15h6"/></svg>',
+        bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>',
+        star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.5 6.5L21 10l-5 4.5L17.5 21 12 17.5 6.5 21 8 14.5 3 10l6.5-.5L12 3z"/></svg>',
+        users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 2.5-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5.3 4 2 4 5"/></svg>',
+        wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 6.5a4 4 0 00-5.5 5.5L4 17l3 3 5-5a4 4 0 005.5-5.5L15 12l-2.5-2.5 2-3z"/></svg>'
+      };
+
+      function progressRing(pct) {
+        var r = 16;
+        var c = 2 * Math.PI * r;
+        var offset = c - (pct / 100) * c;
+        var color = pct >= 100 ? "var(--ring-done)" : "var(--ring-progress)";
+        return (
+          '<svg class="guide-ring" viewBox="0 0 40 40">' +
+          '<circle class="ring-bg" cx="20" cy="20" r="' + r + '"/>' +
+          '<circle class="ring-fg" cx="20" cy="20" r="' + r + '" style="stroke-dasharray:' + c + ';stroke-dashoffset:' + offset + ';stroke:' + color + '"/>' +
+          '<text x="20" y="21" text-anchor="middle" dominant-baseline="middle" class="ring-text">' +
+          (pct >= 100 ? "100%" : pct + "%") +
+          "</text></svg>"
+        );
+      }
+
+      function getProgress(id) {
+        try {
+          var raw = localStorage.getItem("seu_guide_progress_v1");
+          if (!raw) return 0;
+          var map = JSON.parse(raw);
+          return Math.min(100, Math.max(0, Number(map[id]) || 0));
+        } catch (e) {
+          return 0;
+        }
+      }
+
+      function markOpened(id) {
+        try {
+          var map = {};
+          var raw = localStorage.getItem("seu_guide_progress_v1");
+          if (raw) map = JSON.parse(raw) || {};
+          var cur = Number(map[id]) || 0;
+          if (cur < 100) map[id] = Math.min(100, cur + 100);
+          localStorage.setItem("seu_guide_progress_v1", JSON.stringify(map));
+        } catch (e) {}
+      }
+
+      var list = document.getElementById("guides-list");
+      var visible = guides.filter(function (g) {
+        if (g.gated === "highrank") return SEUAuth.canAccessHighRank && SEUAuth.canAccessHighRank();
+        return true;
+      });
+
+      document.getElementById("guides-meta").textContent =
+        visible.length + " guides · progress saves on this device";
+
+      list.innerHTML = visible
+        .map(function (g) {
+          var pct = getProgress(g.id);
+          var status =
+            pct >= 100
+              ? '<span class="guide-status done">✓ Fully read</span>'
+              : pct > 0
+              ? '<span class="guide-status partial">' + pct + "% complete</span>"
+              : '<span class="guide-status">Not started</span>';
+          return (
+            '<a class="guide-card" href="' +
+            g.href +
+            '" data-id="' +
+            g.id +
+            '">' +
+            '<div class="guide-card-top">' +
+            '<div class="guide-icon">' +
+            (ICONS[g.icon] || ICONS.badge) +
+            "</div>" +
+            progressRing(pct) +
+            "</div>" +
+            '<h3 class="guide-title">' +
+            g.title +
+            "</h3>" +
+            '<p class="guide-desc">' +
+            g.desc +
+            "</p>" +
+            status +
+            "</a>"
+          );
+        })
+        .join("");
+
+      list.querySelectorAll(".guide-card").forEach(function (a) {
+        a.addEventListener("click", function () {
+          markOpened(a.getAttribute("data-id"));
+        });
+      });
     })();
   </script>
 </body>
