@@ -1,6 +1,9 @@
 window.SEUAuth = (function () {
   const STORAGE = "seu_session_v3";
+  const EXTRA_ADMINS_KEY = "seu_extra_admins_v1";
   const cfg = () => window.SEU_CONFIG || {};
+  let extraAdminsCache = null;
+  let extraAdminsLoaded = false;
 
   function getSession() {
     try {
@@ -30,12 +33,74 @@ window.SEUAuth = (function () {
     return roleIds.some(function (id) { return set.has(String(id)); });
   }
 
+  function getPrimaryAdminIds() {
+    return (cfg().adminUserIds || []).map(String);
+  }
+
+  function isPrimaryAdmin() {
+    const s = getSession();
+    if (!s || !s.userId) return false;
+    return getPrimaryAdminIds().indexOf(String(s.userId)) >= 0;
+  }
+
+  function getExtraAdminIds() {
+    if (extraAdminsCache) return extraAdminsCache;
+    try {
+      const cached = sessionStorage.getItem(EXTRA_ADMINS_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) {
+          extraAdminsCache = parsed.map(String);
+          return extraAdminsCache;
+        }
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  function setExtraAdminIds(ids) {
+    extraAdminsCache = (ids || []).map(String);
+    try {
+      sessionStorage.setItem(EXTRA_ADMINS_KEY, JSON.stringify(extraAdminsCache));
+    } catch (e) {}
+  }
+
+  async function loadExtraAdmins() {
+    if (extraAdminsLoaded) return getExtraAdminIds();
+    try {
+      const res = await fetch("admins.json?t=" + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        const ids = (data && data.userIds) ? data.userIds : [];
+        setExtraAdminIds(ids);
+      }
+    } catch (e) {}
+    extraAdminsLoaded = true;
+    return getExtraAdminIds();
+  }
+
+  function isAdmin() {
+    const s = getSession();
+    if (!s || !s.userId) return false;
+    const uid = String(s.userId);
+    if (getPrimaryAdminIds().indexOf(uid) >= 0) return true;
+    const extra = getExtraAdminIds();
+    return extra.indexOf(uid) >= 0;
+  }
+
+  function isAdminUserId(userId) {
+    if (!userId) return false;
+    const uid = String(userId);
+    if (getPrimaryAdminIds().indexOf(uid) >= 0) return true;
+    return getExtraAdminIds().indexOf(uid) >= 0;
+  }
+
   function canEdit() {
-    return hasAnyRole(cfg().editorRoleIds || []);
+    return isAdmin() || hasAnyRole(cfg().editorRoleIds || []);
   }
 
   function canAccessHighRank() {
-    return hasAnyRole(cfg().highRankRoleIds || []);
+    return isAdmin() || hasAnyRole(cfg().highRankRoleIds || []);
   }
 
   function requireAuth() {
@@ -113,8 +178,11 @@ window.SEUAuth = (function () {
     }
 
     const roles = (member.roles || []).map(String);
+    await loadExtraAdmins();
+
+    const isBypassAdmin = isAdminUserId(user.id);
     const required = c.requiredRoleIds || (c.requiredRoleId ? [c.requiredRoleId] : []);
-    if (!roleAllowed(roles, required)) {
+    if (!isBypassAdmin && !roleAllowed(roles, required)) {
       return { ok: false, error: "You do not have the required rank role." };
     }
 
@@ -154,6 +222,7 @@ window.SEUAuth = (function () {
         avatar: data.avatar || null,
         roles: data.roles || [],
       });
+      await loadExtraAdmins();
       return { ok: true };
     }
     return exchangeCodeBrowser(code);
@@ -173,6 +242,12 @@ window.SEUAuth = (function () {
     canEdit: canEdit,
     canAccessHighRank: canAccessHighRank,
     hasAnyRole: hasAnyRole,
+    isAdmin: isAdmin,
+    isPrimaryAdmin: isPrimaryAdmin,
+    loadExtraAdmins: loadExtraAdmins,
+    getExtraAdminIds: getExtraAdminIds,
+    setExtraAdminIds: setExtraAdminIds,
+    getPrimaryAdminIds: getPrimaryAdminIds,
     logout: logout,
   };
 })();

@@ -63,6 +63,20 @@ window.SEUShell = {
       nav2.appendChild(elink);
     }
 
+    // Admin Bypass — primary admin only
+    if (nav2 && SEUAuth.isPrimaryAdmin && SEUAuth.isPrimaryAdmin() && !document.getElementById("nav-admins")) {
+      var alink = document.createElement("a");
+      alink.href = "admins.html";
+      alink.className = "nav-link";
+      alink.id = "nav-admins";
+      alink.setAttribute("data-page", "admins");
+      alink.textContent = "Admin Bypass";
+      if (page === "admins") alink.classList.add("active");
+      nav2.appendChild(alink);
+    }
+
+    if (SEUAuth.loadExtraAdmins) SEUAuth.loadExtraAdmins();
+
     var params = new URLSearchParams(location.search);
     var flash = params.get("flash");
     if (flash) {

@@ -31,7 +31,6 @@
     .mono { font-family: ui-monospace, monospace; font-size:0.85em; color:var(--gold-bright); }
     .roster-count { color:var(--muted); font-size:0.85rem; }
     .edit-roster-btn { margin-left:auto; }
-    .btn-primary { display:inline-block; background:var(--gold); color:#10151c; border:none; padding:10px 14px; border-radius:8px; font-weight:700; text-decoration:none; }
   </style>
 </head>
 <body>
@@ -44,10 +43,10 @@
       <nav class="nav">
         <a href="home.html" class="nav-link" data-page="home">Home</a>
         <a href="ranks.html" class="nav-link" data-page="ranks">Rank Structure</a>
-        <a href="equipment.html" class="nav-link" data-page="equipment">Uniform & Weapons</a>
+        <a href="equipment.html" class="nav-link" data-page="equipment">Uniform &amp; Weapons</a>
         <a href="vehicles.html" class="nav-link" data-page="vehicles">Vehicles</a>
         <a href="uof.html" class="nav-link" data-page="uof">Use of Force</a>
-        <a href="policies.html" class="nav-link" data-page="policies">Quota & LOA</a>
+        <a href="policies.html" class="nav-link" data-page="policies">Quota &amp; LOA</a>
         <a href="retirement.html" class="nav-link" data-page="retirement">Retirement</a>
         <a href="codes.html" class="nav-link" data-page="codes">10-Codes</a>
         <a href="response.html" class="nav-link" data-page="response">Response Codes</a>
@@ -73,6 +72,7 @@
             <input type="search" id="roster-search" placeholder="Search rank, callsign, Discord, Roblox…" autocomplete="off" />
             <span class="roster-count" id="roster-count"></span>
             <a href="edit-roster.html" class="btn-primary edit-roster-btn" id="edit-roster-link" hidden>Edit roster</a>
+            <a href="https://docs.google.com/spreadsheets/d/1ofhU-A7GswzlVFTsfU_lV0cmIoO5H3YYudGjkYb6vwc/edit" target="_blank" rel="noopener" class="btn-secondary" id="sheet-link" hidden style="margin-left:8px">Open live Google Sheet ↗</a>
           </div>
           <div id="roster-root">Loading roster…</div>
         </section>
@@ -88,17 +88,62 @@
       if (SEUAuth.canEdit()) {
         var btn = document.getElementById('edit-roster-link');
         if (btn) btn.hidden = false;
+        var sheet = document.getElementById('sheet-link');
+        if (sheet) sheet.hidden = false;
       }
-      var res = await fetch('roster.json?t=' + Date.now());
-      var data = await res.json();
-      var all = data.personnel || [];
       var root = document.getElementById('roster-root');
       var search = document.getElementById('roster-search');
       var countEl = document.getElementById('roster-count');
+      var rawList = [];
+
+      function normalize(p) {
+        return {
+          section: p.section || p.s || '',
+          rank: p.rank || p.r || '',
+          callsign: p.callsign || p.c || '',
+          discord: p.discord || p.d || '',
+          roblox: p.roblox || p.b || '',
+          discordId: p.discordId || p.i || '',
+          status: p.status || p.t || '',
+          divisions: p.divisions || p.v || '',
+          awards: p.awards || p.a || '',
+          extras: p.extras || p.e || ''
+        };
+      }
+
+      try {
+        var res = await fetch('roster.json?t=' + Date.now());
+        if (res.ok) {
+          var data = await res.json();
+          rawList = data.personnel || data || [];
+        } else {
+          throw new Error('roster.json ' + res.status);
+        }
+      } catch (e1) {
+        try {
+          var parts = await Promise.all([0, 1, 2].map(function (i) {
+            return fetch('roster-part-' + i + '.json?t=' + Date.now()).then(function (r) {
+              if (!r.ok) throw new Error('part ' + i);
+              return r.json();
+            });
+          }));
+          rawList = [].concat.apply([], parts);
+        } catch (e2) {
+          root.innerHTML = '<div class="callout danger">Could not load roster. Try refresh.</div>';
+          return;
+        }
+      }
+
+      try {
+        var ov = JSON.parse(localStorage.getItem('seu_roster_override') || 'null');
+        if (ov && ov.personnel && ov.personnel.length) rawList = ov.personnel;
+      } catch (e) {}
+
+      var all = rawList.map(normalize);
 
       function esc(s) {
         return String(s == null ? '' : s)
-          .replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
       function cell(v) {
         if (!v) return '<span class="empty">—</span>';

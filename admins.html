@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Bypass · SEU Guide</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .admin-list { margin: 20px 0; }
+    .admin-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); margin-bottom: 8px;
+    }
+    .admin-row .uid { font-family: ui-monospace, monospace; color: var(--gold-bright); flex: 1; }
+    .admin-row .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; background: rgba(214,173,69,0.12); color: var(--gold-bright); border: 1px solid var(--border); }
+    .admin-row button {
+      padding: 6px 12px; border-radius: 8px; border: 1px solid #6b3030;
+      background: #241014; color: #ffb5b5; cursor: pointer; font-weight: 600; font-size: 0.85rem;
+    }
+    .add-form { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 24px; }
+    .add-form input {
+      flex: 1; min-width: 220px; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: #070b12; color: var(--text); font: inherit;
+    }
+    .add-form button {
+      padding: 12px 18px; border-radius: 10px; border: none;
+      background: var(--gold); color: #10151c; font-weight: 700; cursor: pointer;
+    }
+    .admin-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .admin-actions .btn-save {
+      padding: 12px 18px; border-radius: 10px; border: none;
+      background: var(--gold); color: #10151c; font-weight: 700; cursor: pointer;
+    }
+    .admin-actions .btn-cancel {
+      padding: 12px 18px; border-radius: 10px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); text-decoration: none; font-weight: 600;
+    }
+    .status { margin-top: 12px; font-weight: 600; }
+    .status.ok { color: var(--green); }
+    .status.err { color: var(--danger); }
+    .token-box { margin: 16px 0; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+    .token-box input {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: #070b12; color: var(--text); font: inherit; margin-top: 8px;
+    }
+    .token-box label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SEU</span>
+        <div><strong>Speed Enforcement</strong><span>Unit Guide</span></div>
+      </div>
+      <nav class="nav">
+        <a href="home.html" class="nav-link" data-page="home">Home</a>
+        <a href="admins.html" class="nav-link active" data-page="admins">Admin Bypass</a>
+      </nav>
+      <div class="user-box" id="user-box"></div>
+      <button type="button" class="logout" id="logout">Sign out</button>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+        <h2>Admin Bypass</h2>
+      </header>
+      <div class="content">
+        <div class="callout danger" id="denied" hidden>
+          Only the primary admin can manage the bypass list.
+        </div>
+        <div id="panel" hidden>
+          <div class="hero">
+            <p class="eyebrow">Primary admin only</p>
+            <h1>Admin Bypass List</h1>
+            <p class="lead">
+              People on this list get full access: main guide, high rank guide, and edit —
+              even without the normal rank roles. Only you can add or remove them.
+            </p>
+          </div>
+
+          <div class="token-box">
+            <label for="gh-token">GitHub token (needed to publish changes for everyone)</label>
+            <input type="password" id="gh-token" placeholder="ghp_…" autocomplete="off" />
+            <p class="muted" style="margin:8px 0 0;font-size:0.8rem;">
+              Stored only in this browser session. Same token used on the guide editor.
+            </p>
+          </div>
+
+          <div class="add-form">
+            <input type="text" id="new-uid" placeholder="Discord user ID to add" inputmode="numeric" autocomplete="off" />
+            <button type="button" id="add-btn">Add user ID</button>
+          </div>
+
+          <h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--muted);">Primary admin (always on)</h3>
+          <div class="admin-list" id="primary-list"></div>
+
+          <h3 style="margin:20px 0 10px;font-size:0.95rem;color:var(--muted);">Bypass list</h3>
+          <div class="admin-list" id="extra-list"></div>
+
+          <div class="admin-actions">
+            <button type="button" class="btn-save" id="save-btn">Save &amp; publish</button>
+            <a class="btn-cancel" href="home.html">Back</a>
+          </div>
+          <p class="status" id="status"></p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="shell.js"></script>
+  <script>
+    SEUShell.init("admins");
+    (async function () {
+      if (!SEUAuth.requireAuth()) return;
+      await SEUAuth.loadExtraAdmins();
+
+      if (!SEUAuth.isPrimaryAdmin()) {
+        document.getElementById("denied").hidden = false;
+        return;
+      }
+      document.getElementById("panel").hidden = false;
+
+      var primary = SEUAuth.getPrimaryAdminIds();
+      var list = SEUAuth.getExtraAdminIds().slice();
+      var primaryEl = document.getElementById("primary-list");
+      var extraEl = document.getElementById("extra-list");
+      var status = document.getElementById("status");
+      var tokenInput = document.getElementById("gh-token");
+
+      try {
+        var t = sessionStorage.getItem("seu_github_token") || "";
+        if (t) tokenInput.value = t;
+      } catch (e) {}
+
+      function render() {
+        primaryEl.innerHTML = primary.map(function (id) {
+          return '<div class="admin-row"><span class="uid">' + id + '</span><span class="tag">Primary</span></div>';
+        }).join("") || '<p class="muted">None</p>';
+
+        if (!list.length) {
+          extraEl.innerHTML = '<p class="muted">No extra bypass users yet.</p>';
+          return;
+        }
+        extraEl.innerHTML = list.map(function (id, i) {
+          return '<div class="admin-row">' +
+            '<span class="uid">' + id + '</span>' +
+            '<span class="tag">Bypass</span>' +
+            '<button type="button" data-i="' + i + '">Remove</button>' +
+            '</div>';
+        }).join("");
+        extraEl.querySelectorAll("button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            list.splice(Number(btn.getAttribute("data-i")), 1);
+            render();
+          });
+        });
+      }
+      render();
+
+      document.getElementById("add-btn").addEventListener("click", function () {
+        var uid = (document.getElementById("new-uid").value || "").trim();
+        if (!/^\d{17,20}$/.test(uid)) {
+          status.className = "status err";
+          status.textContent = "Enter a valid Discord user ID (17–20 digits).";
+          return;
+        }
+        if (primary.indexOf(uid) >= 0 || list.indexOf(uid) >= 0) {
+          status.className = "status err";
+          status.textContent = "That user ID is already on the list.";
+          return;
+        }
+        list.push(uid);
+        document.getElementById("new-uid").value = "";
+        status.textContent = "";
+        render();
+      });
+
+      document.getElementById("save-btn").addEventListener("click", async function () {
+        var token = (tokenInput.value || "").trim();
+        if (!token) {
+          status.className = "status err";
+          status.textContent = "Paste a GitHub token to publish the list.";
+          return;
+        }
+        try { sessionStorage.setItem("seu_github_token", token); } catch (e) {}
+
+        SEUAuth.setExtraAdminIds(list);
+        status.className = "status";
+        status.textContent = "Publishing…";
+
+        var cfg = window.SEU_CONFIG || {};
+        var repo = cfg.githubRepo || "quiklyboy0-eng/seu-guide";
+        var path = "admins.json";
+        var content = JSON.stringify({ userIds: list }, null, 2) + "\n";
+        var b64 = btoa(unescape(encodeURIComponent(content)));
+
+        try {
+          var getRes = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
+            headers: { Authorization: "token " + token, Accept: "application/vnd.github.v3+json" }
+          });
+          var sha = null;
+          if (getRes.ok) {
+            var existing = await getRes.json();
+            sha = existing.sha;
+          }
+          var body = {
+            message: "Update admin bypass list",
+            content: b64,
+            branch: "main"
+          };
+          if (sha) body.sha = sha;
+
+          var putRes = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
+            method: "PUT",
+            headers: {
+              Authorization: "token " + token,
+              Accept: "application/vnd.github.v3+json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+          });
+          if (!putRes.ok) {
+            var err = await putRes.json().catch(function () { return {}; });
+            throw new Error(err.message || ("GitHub API " + putRes.status));
+          }
+          status.className = "status ok";
+          status.textContent = "Saved. Bypass list is live for everyone.";
+        } catch (err) {
+          status.className = "status err";
+          status.textContent = "Save failed: " + (err.message || err);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
